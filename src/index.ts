@@ -8,7 +8,8 @@ import {
   startWith,
   switchMap,
   tap,
-  withLatestFrom
+  withLatestFrom,
+  pluck
 } from 'rxjs/operators';
 import {
   Counter,
@@ -140,7 +141,7 @@ merge(
 function queryChange<T, K extends keyof T>(key: K) {
   return (source: Observable<T>): Observable<T[K]> =>
     source.pipe(
-      map(value => value[key]),
+      pluck(key),
       distinctUntilChanged()
     );
 }
