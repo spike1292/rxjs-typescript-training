@@ -1,10 +1,8 @@
 # RxJS Typescript Workshop
 
-Operating Heavily Dynamic UI's
+Reactive programming, Event Sourcing & CQRS in the frontend
 
-_Event Sourcing & CQRS in the frontend_
-
-[Slides](https://slides.com/spike1292/rxjs-workshop)
+[Slides](https://slides.com/spike1292/rxjs-typescript-workshop)
 
 ## Prerequisites
 
