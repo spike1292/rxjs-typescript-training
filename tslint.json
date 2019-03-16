@@ -1,0 +1,10 @@
+{
+  "defaultSeverity": "error",
+  "extends": ["tslint:latest", "tslint-config-prettier"],
+  "jsRules": {},
+  "rules": {
+    "no-submodule-imports": false,
+    "member-ordering": false
+  },
+  "rulesDirectory": []
+}

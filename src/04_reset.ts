@@ -1,32 +1,22 @@
+import { merge, NEVER, Observable, Subject, timer } from 'rxjs';
 import {
-  Counter,
-  CountDownState,
-  CounterStateKeys,
-  PartialCountDownState
-} from './counter';
-import {
-  Observable,
-  Observer,
-  NEVER,
-  Subject,
-  pipe,
-  timer,
-  combineLatest,
-  merge
-} from 'rxjs';
-import {
+  distinctUntilChanged,
   map,
   mapTo,
-  withLatestFrom,
-  tap,
-  distinctUntilChanged,
-  shareReplay,
-  distinctUntilKeyChanged,
-  startWith,
-  scan,
   pluck,
-  switchMap
+  scan,
+  shareReplay,
+  startWith,
+  switchMap,
+  tap,
+  withLatestFrom
 } from 'rxjs/operators';
+import {
+  Counter,
+  CounterStateKeys,
+  ICountDownState,
+  PartialCountDownState
+} from './counter';
 
 // EXERCISE DESCRIPTION ==============================
 
@@ -49,7 +39,7 @@ import {
 
 // == CONSTANTS ===========================================================
 // Setup conutDown state
-const initialCounterState: CountDownState = {
+const initialCounterState: ICountDownState = {
   count: 0,
   isTicking: false,
   tickSpeed: 200,
@@ -83,10 +73,10 @@ const counterCommands$ = merge(
   programmaticCommandSubject.asObservable()
 );
 
-const counterState$: Observable<CountDownState> = counterCommands$.pipe(
+const counterState$: Observable<ICountDownState> = counterCommands$.pipe(
   startWith(initialCounterState),
   scan(
-    (counterState: CountDownState, command): CountDownState => ({
+    (counterState: ICountDownState, command): ICountDownState => ({
       ...counterState,
       ...command
     })
@@ -98,7 +88,7 @@ const counterState$: Observable<CountDownState> = counterCommands$.pipe(
 
 // == INTERMEDIATE OBSERVABLES ============================================
 const count$ = counterState$.pipe(
-  pluck<CountDownState, number>(CounterStateKeys.count)
+  pluck<ICountDownState, number>(CounterStateKeys.count)
 );
 const isTicking$ = counterState$.pipe(
   pluck(CounterStateKeys.isTicking),

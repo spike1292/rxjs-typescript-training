@@ -10,7 +10,7 @@ import {
   withLatestFrom,
   startWith
 } from 'rxjs/operators';
-import { CountDownState, Counter, CounterStateKeys } from './counter';
+import { Counter, CounterStateKeys, ICountDownState } from './counter';
 
 // EXERCISE DESCRIPTION ==============================
 
@@ -39,23 +39,23 @@ const queryChange = <T, K extends keyof T>(key: K) => (
     distinctUntilChanged()
   );
 
-const initialCounterState: CountDownState = {
-  isTicking: false,
+const initialCounterState: ICountDownState = {
   count: 0,
+  countDiff: 1,
   countUp: true,
-  tickSpeed: 200,
-  countDiff: 1
+  isTicking: false,
+  tickSpeed: 200
 };
 
 const counterUI = new Counter(document.body, {
+  initialCountDiff: initialCounterState.countDiff,
   initialSetTo: initialCounterState.count + 10,
-  initialTickSpeed: initialCounterState.tickSpeed,
-  initialCountDiff: initialCounterState.countDiff
+  initialTickSpeed: initialCounterState.tickSpeed
 });
 
-const programmaticCommands = new Subject<Partial<CountDownState>>();
+const programmaticCommands = new Subject<Partial<ICountDownState>>();
 
-const command$ = merge<Partial<CountDownState>>(
+const command$ = merge<Partial<ICountDownState>>(
   counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
   counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
   counterUI.btnDown$.pipe(mapTo({ countUp: false })),
@@ -70,7 +70,7 @@ const command$ = merge<Partial<CountDownState>>(
 
 const state$ = command$.pipe(
   startWith(initialCounterState),
-  scan<Partial<CountDownState>, CountDownState>((state, command) => ({
+  scan<Partial<ICountDownState>, ICountDownState>((state, command) => ({
     ...state,
     ...command
   })),

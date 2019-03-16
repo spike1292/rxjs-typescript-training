@@ -21,9 +21,9 @@ import {
   withLatestFrom
 } from 'rxjs/operators';
 import {
-  CountDownState,
   Counter,
   CounterStateKeys,
+  ICountDownState,
   PartialCountDownState
 } from './counter';
 
@@ -48,19 +48,18 @@ import {
 
 // == CONSTANTS ===========================================================
 // Setup conutDown state
-const initialCounterState: CountDownState = {
+const initialCounterState: ICountDownState = {
   count: 0,
-  isTicking: false,
-  tickSpeed: 200,
+  countDiff: 1,
   countUp: true,
-  countDiff: 1
+  isTicking: false,
+  tickSpeed: 200
 };
 
-// Init CountDown counterUI
 const counterUI = new Counter(document.body, {
+  initialCountDiff: initialCounterState.countDiff,
   initialSetTo: initialCounterState.count + 10,
-  initialTickSpeed: initialCounterState.tickSpeed,
-  initialCountDiff: initialCounterState.countDiff
+  initialTickSpeed: initialCounterState.tickSpeed
 });
 
 // = BASE OBSERVABLES  ====================================================
@@ -80,10 +79,10 @@ const counterCommands$ = merge(
   programmaticCommandSubject.asObservable()
 );
 
-const counterState$: Observable<CountDownState> = counterCommands$.pipe(
+const counterState$: Observable<ICountDownState> = counterCommands$.pipe(
   startWith(initialCounterState),
   scan(
-    (counterState: CountDownState, command): CountDownState => ({
+    (counterState: ICountDownState, command): ICountDownState => ({
       ...counterState,
       ...command
     })
@@ -92,18 +91,19 @@ const counterState$: Observable<CountDownState> = counterCommands$.pipe(
 );
 
 // === INTERACTION OBSERVABLES ============================================
+
 // == INTERMEDIATE OBSERVABLES ============================================
 const count$ = counterState$.pipe(
-  pluck<CountDownState, number>(CounterStateKeys.count)
+  pluck<ICountDownState, number>(CounterStateKeys.count)
 );
 const isTicking$ = counterState$.pipe(
-  queryChange<CountDownState, boolean>(CounterStateKeys.isTicking)
+  queryChange<ICountDownState, boolean>(CounterStateKeys.isTicking)
 );
 const tickSpeed$ = counterState$.pipe(
-  queryChange<CountDownState, number>(CounterStateKeys.tickSpeed)
+  queryChange<ICountDownState, number>(CounterStateKeys.tickSpeed)
 );
 const countDiff$ = counterState$.pipe(
-  queryChange<CountDownState, number>(CounterStateKeys.countDiff)
+  queryChange<ICountDownState, number>(CounterStateKeys.countDiff)
 );
 
 const counterUpdateTrigger$ = combineLatest([isTicking$, tickSpeed$]).pipe(
