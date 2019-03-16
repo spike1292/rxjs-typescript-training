@@ -2,10 +2,16 @@
   "name": "rxjs-typescript-workshop",
   "version": "0.0.0",
   "private": true,
+  "scripts": {
+    "start": "parcel ./src/index.html",
+    "build": "parcel build ./src/index.html"
+  },
   "dependencies": {
     "rxjs": "~6.4.0"
   },
   "devDependencies": {
+    "parcel-bundler": "^1.12.2",
+    "sass": "^1.17.3",
     "typescript": "3.3.3"
   }
 }
