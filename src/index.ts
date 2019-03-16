@@ -81,6 +81,7 @@ const count$ = state$.pipe(queryChange(CounterStateKeys.count));
 const countDiff$ = state$.pipe(queryChange(CounterStateKeys.countDiff));
 const countUp$ = state$.pipe(queryChange(CounterStateKeys.countUp));
 const countData$ = combineLatest(count$, countDiff$, countUp$);
+
 const counterUpdateTrigger$ = combineLatest(isTicking$, tickSpeed$).pipe(
   switchMap(([isTicking, tickSpeed]) =>
     isTicking ? timer(0, tickSpeed) : NEVER
@@ -118,11 +119,13 @@ const commandFromTick$ = counterUpdateTrigger$.pipe(
 
 // == SUBSCRIPTION ========================================================
 merge(
-  commandFromTick$,
+  // Input side effect,
   countInputUpdate$,
   countDiffUpdate$,
   tickSpeedUpdate$,
-  setToUpdate$
+  setToUpdate$,
+  // Output side effects
+  commandFromTick$
 ).subscribe();
 
 // = HELPER ===============================================================
