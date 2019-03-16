@@ -1,21 +1,15 @@
+import { combineLatest, merge, NEVER, Observable, Subject, timer } from "rxjs";
 import {
-  Counter,
-  CountDownState,
-  CounterStateKeys,
-} from "./counter";
-import { merge, Observable, timer, combineLatest, NEVER, Subject } from "rxjs";
-import {
-  mapTo,
+  distinctUntilChanged,
   map,
+  mapTo,
   scan,
   shareReplay,
-  startWith,
-  tap,
-  distinctUntilChanged,
   switchMap,
-  switchMapTo,
+  tap,
   withLatestFrom
 } from "rxjs/operators";
+import { CountDownState, Counter, CounterStateKeys } from "./counter";
 
 // EXERCISE DESCRIPTION ==============================
 
