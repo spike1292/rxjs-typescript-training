@@ -5,10 +5,10 @@ import {
   mapTo,
   scan,
   shareReplay,
+  startWith,
   switchMap,
   tap,
-  withLatestFrom,
-  startWith
+  withLatestFrom
 } from 'rxjs/operators';
 import {
   Counter,
