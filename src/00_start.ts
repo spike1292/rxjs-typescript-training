@@ -40,4 +40,4 @@ const counterUI = new Counter(document.body, {
 merge(
   counterUI.btnStart$.pipe(mapTo(1)),
   counterUI.btnPause$.pipe(mapTo(0))
-).subscribe(console.log);
+).subscribe(n => counterUI.renderCounterValue(n));
