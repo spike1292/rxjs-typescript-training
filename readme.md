@@ -1,12 +1,21 @@
-# PROJECT SETUP
+# RxJS Typescript Workshop
 
-1. Install [yarn](https://yarnpkg.com/en/docs/install)
-2. `yarn`
-3. `yarn start`
+Operating Heavily Dynamic UI's _Event Sourcing & CQRS in the frontend_
 
-You will have a hot reloading project now.
+## Prerequisites
 
-# PROJECT STRUCTURE
+- vscode / webstorm
+- [node lts (10)](https://nodejs.org/en/download/)
+- [yarn](https://yarnpkg.com/en/docs/install)
+
+## Setup
+
+1. `yarn install`
+2. `yarn start`
+
+Open to [http://localhost:1234](http://localhost:1234) to see your hot reloaded project.
+
+## PROJECT STRUCTURE
 
 In the `src` directory there is an `index.ts` and a `count.ts` file. The `counter.ts` file countains a class you will use to implement the counter. The `index.ts` file contains the starting situation, you will expand this file to implement the counter.
 
@@ -21,7 +30,7 @@ Start the project and have a look at the starting situation in the browser. The 
 - Changing the tickspeed will change the interval of the timer
 - Changing the count diff will change how much the counter changes each tick
 
-# STATE MANAGEMENT
+## STATE MANAGEMENT
 
 1. Create a `command$` observable of all inputs (counterUI.btnStart$, counterUI.btnPause$, counterUI.inputTickSpeed, etc..)
    and map them to state updates i.e. counterUI.btnStart\$.pipe(mapTo({isTicking: true}))
@@ -30,13 +39,13 @@ Start the project and have a look at the starting situation in the browser. The 
    Use shareReplay(1) to retrieve the last value emitted whenever you subscribe.
 3. Subscribe to state\$ and use console.log to test it.
 
-# RENDERING
+## RENDERING
 
 1. Create a `renderCountValue$` observable in section "SIDE EFFECTS" - "Input".
    Use `tap` to execute counterUI.renderDisplayText(). To optimize performance use the `queryChange` custom operator.
 2. Place the new observable in the "SUBSCRUPTIONS" section under "Input" to test it.
 
-# TIMER
+## TIMER
 
 1. Create a `timerProcessChange$` observable in the section "OBSERVABLES".
 2. Use the `state$` to get the isTicking value. Use the "switchMap NEVER" pattern from before to start a timer.
