@@ -23,18 +23,34 @@ Start the project and have a look at the starting situation in the browser. The 
 
 # STATE MANAGEMENT
 
-1. Create a `command$` observable of all inputs (counterUI.btnStart$, counterUI.btnPause$, counterUI.inputTickSpeed, etc..)
-   and map them to state updates i.e. counterUI.btnStart\$.pipe(mapTo({isTicking: true}))
+To start off we will create the state management section of the application. We will be making use of the counterUI interface, take some time to see what this exposes. In this section we will:
+
+- Gather all inputs into an event stream
+- Map these events to state updates
+- Expose the application state as an observable
+- Merge the state updates into the existing state
+
+1. Use the `merge` rxjs operator to create a `command$` observable. This should emit a state update when any of the inputs on the `counterUI` change (counterUI.btnStart$, counterUI.btnPause$ etc.) A state update is a partial state, for example:
+
+```ts
+counterUI.btnStart$.pipe(mapTo({ isTicking: true }));
+```
+
 2. Create a `state$` observable.
-   Start with initialCounterState, use scan to merge updates from command\$ in.
-   Use shareReplay(1) to retrieve the last value emitted whenever you subscribe.
-3. Subscribe to state\$ and use console.log to test it.
+   Start with `initialCounterState`, use the `scan` operator to merge updates from `command$` in. Scan is similar to the `array.reduce` function.
+   Use the `shareReplay(1)` operator to retrieve the last value emitted whenever you subscribe.
+
+3. Subscribe to `state$` and use `console.log` to test it, the updated state should be logged when you click any of the buttons or change a value.
 
 # RENDERING
 
-1. Create a `renderCountValue$` observable in section "SIDE EFFECTS" - "Input".
-   Use `tap` to execute counterUI.renderDisplayText(). To optimize performance use the `queryChange` custom operator.
-2. Place the new observable in the "SUBSCRUPTIONS" section under "Input" to test it.
+In this section we will
+
+- Render the current count value from the state to the screen.
+
+1. Create a `renderCountValue$` observable from the `state$` observable, use the `map` operator to select the `count` property.
+   Use the `tap` operator to execute `counterUI.renderDisplayText()`.
+2. Subscribe to this observable and verify that the initial count variable is rendered to the screen.
 
 # TIMER
 
