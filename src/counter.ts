@@ -1,13 +1,12 @@
-import "./style.scss";
-
-import { Subject, Observable, fromEvent } from "rxjs";
+import { fromEvent, Observable } from 'rxjs';
 import {
-  mapTo,
   map,
-  withLatestFrom,
+  mapTo,
+  shareReplay,
   startWith,
-  shareReplay
-} from "rxjs/operators";
+  withLatestFrom
+} from 'rxjs/operators';
+import './style.scss';
 
 export interface CounterConfig {
   initialSetTo?: number;
@@ -33,12 +32,12 @@ export type PartialCountDownState =
   | { setTo: number };
 
 export enum CounterStateKeys {
-  isTicking = "isTicking",
-  count = "count",
-  countUp = "countUp",
-  tickSpeed = "tickSpeed",
-  countDiff = "countDiff",
-  setTo = "setTo"
+  isTicking = 'isTicking',
+  count = 'count',
+  countUp = 'countUp',
+  tickSpeed = 'tickSpeed',
+  countDiff = 'countDiff',
+  setTo = 'setTo'
 }
 
 export enum ActionNames {
@@ -124,12 +123,11 @@ export class Counter {
     <input id="${
       ElementIds.InputTickSpeed
     }" style="width:60px" type="number" min=0 value="${this.initialTickSpeed}"/>
- 
 <!-- I'm sorry for this, but I was lazy.. :) -->
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    
+
     <label>
-      Count Diff   
+      Count Diff
     </label>
     <input id="${
       ElementIds.InputCountDiff
@@ -142,9 +140,9 @@ export class Counter {
     if (this.display) {
       this.display.innerHTML = count
         .toString()
-        .split("")
+        .split('')
         .map(this.getDigit)
-        .join("");
+        .join('');
     }
   }
 
@@ -208,45 +206,45 @@ export class Counter {
     // setup observables
     this.btnStart$ = getCommandObservableByElem(
       ElementIds.BtnStart,
-      "click",
+      'click',
       ActionNames.Start
     );
     this.btnPause$ = getCommandObservableByElem(
       ElementIds.BtnPause,
-      "click",
+      'click',
       ActionNames.Pause
     );
     this.btnUp$ = getCommandObservableByElem(
       ElementIds.BtnUp,
-      "click",
+      'click',
       ActionNames.Up
     );
     this.btnDown$ = getCommandObservableByElem(
       ElementIds.BtnDown,
-      "click",
+      'click',
       ActionNames.Down
     );
     this.btnReset$ = getCommandObservableByElem(
       ElementIds.BtnReset,
-      "click",
+      'click',
       ActionNames.Reset
     );
 
-    this.inputSetTo$ = getValueObservable(ElementIds.InputSetTo, "input").pipe(
+    this.inputSetTo$ = getValueObservable(ElementIds.InputSetTo, 'input').pipe(
       startWith(this.initialSetTo)
     );
     this.inputTickSpeed$ = getValueObservable(
       ElementIds.InputTickSpeed,
-      "input"
+      'input'
     ).pipe(startWith(this.initialTickSpeed));
     this.inputCountDiff$ = getValueObservable(
       ElementIds.InputCountDiff,
-      "input"
+      'input'
     ).pipe(startWith(this.initialCountDiff));
 
     this.btnSetTo$ = getCommandObservableByElem(
       ElementIds.BtnSetTo,
-      "click",
+      'click',
       ActionNames.SetTo
     ).pipe(withLatestFrom(this.inputSetTo$, (_, i$) => i$));
   }

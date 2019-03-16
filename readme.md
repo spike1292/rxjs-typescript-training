@@ -1,12 +1,21 @@
-# PROJECT SETUP
+# RxJS Typescript Workshop
 
-1. Install [yarn](https://yarnpkg.com/en/docs/install)
-2. `yarn`
-3. `yarn start`
+Operating Heavily Dynamic UI's _Event Sourcing & CQRS in the frontend_
 
-You will have a hot reloading project now.
+## Prerequisites
 
-# PROJECT STRUCTURE
+- vscode / webstorm
+- [node lts (10)](https://nodejs.org/en/download/)
+- [yarn](https://yarnpkg.com/en/docs/install)
+
+## Setup
+
+1. `yarn install`
+2. `yarn start`
+
+Open to [http://localhost:1234](http://localhost:1234) to see your hot reloaded project.
+
+## PROJECT STRUCTURE
 
 In the `src` directory there is an `index.ts` and a `count.ts` file. The `counter.ts` file countains a class you will use to implement the counter. The `index.ts` file contains the starting situation, you will expand this file to implement the counter.
 
@@ -21,7 +30,7 @@ Start the project and have a look at the starting situation in the browser. The 
 - Changing the tickspeed will change the interval of the timer
 - Changing the count diff will change how much the counter changes each tick
 
-# STATE MANAGEMENT
+## STATE MANAGEMENT
 
 To start off we will create the state management section of the application. We will be making use of the counterUI interface, take some time to see what this exposes. In this section we will:
 
@@ -42,7 +51,7 @@ counterUI.btnStart$.pipe(mapTo({ isTicking: true }));
 
 3. Subscribe to `state$` and use `console.log` to test it, the updated state should be logged when you click any of the buttons or change a value.
 
-# RENDERING
+## RENDERING
 
 In this section we will
 
@@ -52,7 +61,7 @@ In this section we will
    Use the `tap` operator to execute `counterUI.renderDisplayText()`.
 2. Subscribe to this observable and verify that the initial count variable is rendered to the screen.
 
-# TIMER
+## TIMER
 
 1. Create a `timerProcessChange$` observable in the section "OBSERVABLES".
 2. Use the `state$` to get the isTicking value. Use the "switchMap NEVER" pattern from before to start a timer.

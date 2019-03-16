@@ -1,4 +1,4 @@
-import { combineLatest, merge, NEVER, Observable, Subject, timer } from "rxjs";
+import { combineLatest, merge, NEVER, Observable, Subject, timer } from 'rxjs';
 import {
   distinctUntilChanged,
   map,
@@ -8,8 +8,8 @@ import {
   switchMap,
   tap,
   withLatestFrom
-} from "rxjs/operators";
-import { CountDownState, Counter, CounterStateKeys } from "./counter";
+} from 'rxjs/operators';
+import { CountDownState, Counter, CounterStateKeys } from './counter';
 
 // EXERCISE DESCRIPTION ==============================
 
