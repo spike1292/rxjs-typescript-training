@@ -6,7 +6,7 @@ Reactive programming, Event Sourcing & CQRS in the frontend
 
 ## TODO
 
-- [ ] links to operator docs
+- [ ] links to operator docs + marble
 - [ ] review henk
 - [ ] explain files structure with assignments
 - [ ] expand test assignment + example
