@@ -81,12 +81,10 @@ const counterCommands$ = merge(
 
 const counterState$: Observable<ICountDownState> = counterCommands$.pipe(
   startWith(initialCounterState),
-  scan(
-    (counterState: ICountDownState, command): ICountDownState => ({
-      ...counterState,
-      ...command
-    })
-  ),
+  scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
+    ...counterState,
+    ...command
+  })),
   shareReplay(1)
 );
 
@@ -106,7 +104,7 @@ const countDiff$ = counterState$.pipe(
   queryChange<ICountDownState, number>(CounterStateKeys.countDiff)
 );
 
-const counterUpdateTrigger$ = combineLatest([isTicking$, tickSpeed$]).pipe(
+const counterUpdateTrigger$ = combineLatest(isTicking$, tickSpeed$).pipe(
   switchMap(([isTicking, tickSpeed]) =>
     isTicking ? timer(0, tickSpeed) : NEVER
   )
