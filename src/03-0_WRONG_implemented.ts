@@ -1,6 +1,6 @@
 import { merge, NEVER, timer } from 'rxjs';
 import { mapTo, switchMap, tap } from 'rxjs/operators';
-import { CountDownState, Counter } from './counter';
+import { ICountDownState, Counter } from './counter';
 
 // EXERCISE DESCRIPTION ==============================
 
@@ -21,7 +21,7 @@ import { CountDownState, Counter } from './counter';
 
 // ==================================================================
 
-const initialCounterState: CountDownState = {
+const initialCounterState: ICountDownState = {
   isTicking: false,
   count: 0,
   countUp: true,

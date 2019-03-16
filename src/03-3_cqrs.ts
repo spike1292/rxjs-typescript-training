@@ -8,7 +8,7 @@ import {
   switchMap,
   tap
 } from 'rxjs/operators';
-import { CountDownState, Counter } from './counter';
+import { Counter, ICountDownState } from './counter';
 
 // EXERCISE DESCRIPTION ==============================
 
@@ -31,7 +31,7 @@ import { CountDownState, Counter } from './counter';
 
 // == CONSTANTS ===========================================================
 // Setup conutDown state
-const initialCounterState: CountDownState = {
+const initialCounterState: ICountDownState = {
   isTicking: false,
   count: 0,
   countUp: true,
@@ -60,10 +60,10 @@ const counterCommands$ = merge(
   counterUI.inputCountDiff$.pipe(map(n => ({ countDiff: n })))
 );
 
-const counterState$: Observable<CountDownState> = counterCommands$.pipe(
+const counterState$: Observable<ICountDownState> = counterCommands$.pipe(
   startWith(initialCounterState),
   scan(
-    (counterState: CountDownState, command): CountDownState => ({
+    (counterState: ICountDownState, command): ICountDownState => ({
       ...counterState,
       ...command
     })

@@ -6,15 +6,14 @@ import {
   startWith,
   withLatestFrom
 } from 'rxjs/operators';
-import './style.scss';
 
-export interface CounterConfig {
+export interface ICounterConfig {
   initialSetTo?: number;
   initialTickSpeed?: number;
   initialCountDiff?: number;
 }
 
-export interface CountDownState {
+export interface ICountDownState {
   isTicking: boolean;
   count: number;
   countUp: boolean;
@@ -150,14 +149,14 @@ export class Counter {
     }
   };
 
-  private tickSpeedInput;
+  private tickSpeedInput: HTMLInputElement;
   public renderTickSpeedInputValue = (value: number): void => {
     if (this.tickSpeedInput) {
       this.tickSpeedInput.value = value.toString();
     }
   };
 
-  private countDiffInput;
+  private countDiffInput: HTMLInputElement;
   public renderCountDiffInputValue = (value: number): void => {
     if (this.countDiffInput) {
       this.countDiffInput.value = value.toString();
@@ -175,15 +174,11 @@ export class Counter {
   public inputCountDiff$: Observable<number>;
   public inputSetTo$: Observable<number>;
 
-  constructor(parent: HTMLElement, config?: CounterConfig) {
+  constructor(parent: HTMLElement, config?: ICounterConfig) {
     this.initialTickSpeed = (config && config.initialTickSpeed) || 1000;
     this.initialSetTo = (config && config.initialSetTo) || 0;
     this.initialCountDiff = (config && config.initialCountDiff) || 1;
 
-    this.init(parent);
-  }
-
-  private init(parent: HTMLElement) {
     parent.innerHTML = parent.innerHTML + this.viewHtml();
 
     // getElements
@@ -246,7 +241,7 @@ export class Counter {
     ).pipe(withLatestFrom(this.inputSetTo$, (_, i$) => i$));
   }
 
-  private getDigit(d): string {
+  private getDigit(d: string): string {
     return `<span class="position">
             <span class="digit static">
               ${d}
@@ -264,9 +259,11 @@ function getCommandObservableByElem(
   eventName: string,
   command: ActionNames
 ) {
-  return fromEvent(document.getElementById(elemId), eventName).pipe(
-    mapTo(command)
-  );
+  const elm = document.getElementById(elemId);
+  if (!elm) {
+    throw new Error(`${elemId} not found`);
+  }
+  return fromEvent(elm, eventName).pipe(mapTo(command));
 }
 
 function getValueObservable(
@@ -274,8 +271,11 @@ function getValueObservable(
   eventName: string
 ): Observable<number> {
   const elem = document.getElementById(elemId);
+  if (!elem) {
+    throw new Error(`${elemId} not found`);
+  }
   return fromEvent(elem, eventName).pipe(
-    map(v => v.target.value),
+    map(v => (v.target as HTMLInputElement).value),
     map(v => parseInt(v, 10)),
     shareReplay(1)
   );
