@@ -20,7 +20,6 @@ export interface CountDownState {
   countUp: boolean;
   tickSpeed: number;
   countDiff: number;
-  setTo: number;
 }
 
 export type PartialCountDownState =
@@ -28,16 +27,14 @@ export type PartialCountDownState =
   | { count: number }
   | { countUp: boolean }
   | { tickSpeed: number }
-  | { countDiff: number }
-  | { setTo: number };
+  | { countDiff: number };
 
 export enum CounterStateKeys {
   isTicking = 'isTicking',
   count = 'count',
   countUp = 'countUp',
   tickSpeed = 'tickSpeed',
-  countDiff = 'countDiff',
-  setTo = 'setTo'
+  countDiff = 'countDiff'
 }
 
 export enum ActionNames {
@@ -52,16 +49,16 @@ export enum ActionNames {
 }
 
 enum ElementIds {
-  TimerDisplay = "timer-display",
-  BtnStart = "btn-start",
-  BtnPause = "btn-pause",
-  BtnUp = "btn-up",
-  BtnDown = "btn-down",
-  BtnReset = "btn-reset",
-  BtnSetTo = "btn-set-to",
-  InputSetTo = "set-to-input",
-  InputTickSpeed = "tick-speed-input",
-  InputCountDiff = "count-diff-input"
+  TimerDisplay = 'timer-display',
+  BtnStart = 'btn-start',
+  BtnPause = 'btn-pause',
+  BtnUp = 'btn-up',
+  BtnDown = 'btn-down',
+  BtnReset = 'btn-reset',
+  BtnSetTo = 'btn-set-to',
+  InputSetTo = 'set-to-input',
+  InputTickSpeed = 'tick-speed-input',
+  InputCountDiff = 'count-diff-input'
 }
 
 export class Counter {

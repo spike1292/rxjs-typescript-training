@@ -43,12 +43,11 @@ const initialCounterState: CountDownState = {
   count: 0,
   countUp: true,
   tickSpeed: 200,
-  countDiff: 1,
-  setTo: 10
+  countDiff: 1
 };
 
 const counterUI = new Counter(document.body, {
-  initialSetTo: initialCounterState.setTo,
+  initialSetTo: initialCounterState.count + 10,
   initialTickSpeed: initialCounterState.tickSpeed,
   initialCountDiff: initialCounterState.countDiff
 });
@@ -118,12 +117,5 @@ state$
   .pipe(
     queryChange(CounterStateKeys.tickSpeed),
     tap(n => counterUI.renderTickSpeedInputValue(n))
-  )
-  .subscribe();
-
-state$
-  .pipe(
-    queryChange(CounterStateKeys.setTo),
-    tap(n => counterUI.renderSetToInputValue(n.toString()))
   )
   .subscribe();
