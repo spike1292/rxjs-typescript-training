@@ -62,12 +62,10 @@ const counterCommands$ = merge<PartialCountDownState>(
 
 const counterState$ = counterCommands$.pipe(
   startWith(initialCounterState),
-  scan<PartialCountDownState, ICountDownState>(
-    (counterState, command): ICountDownState => ({
-      ...counterState,
-      ...command
-    })
-  ),
+  scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
+    ...counterState,
+    ...command
+  })),
   shareReplay(1)
 );
 

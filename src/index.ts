@@ -3,13 +3,13 @@ import {
   distinctUntilChanged,
   map,
   mapTo,
+  pluck,
   scan,
   shareReplay,
   startWith,
   switchMap,
   tap,
-  withLatestFrom,
-  pluck
+  withLatestFrom
 } from 'rxjs/operators';
 import {
   Counter,

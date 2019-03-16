@@ -1,5 +1,5 @@
 import { merge, NEVER, timer } from 'rxjs';
-import { mapTo, switchMap, scan } from 'rxjs/operators';
+import { mapTo, scan, switchMap } from 'rxjs/operators';
 import { Counter, ICountDownState } from './counter';
 
 // EXERCISE DESCRIPTION ==============================
