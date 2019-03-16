@@ -10,7 +10,12 @@ import {
   withLatestFrom,
   startWith
 } from 'rxjs/operators';
-import { Counter, CounterStateKeys, ICountDownState } from './counter';
+import {
+  Counter,
+  CounterStateKeys,
+  ICountDownState,
+  PartialCountDownState
+} from './counter';
 
 // EXERCISE DESCRIPTION ==============================
 
@@ -51,8 +56,9 @@ const counterUI = new Counter(document.body, {
 // == SOURCE OBSERVABLES ==================================================
 // All our source observables are extracted into Counter class to hide away all the low leven bindings.
 // === STATE OBSERVABLES ==================================================
-const programmaticCommands = new Subject<Partial<ICountDownState>>();
-const command$ = merge<Partial<ICountDownState>>(
+const programmaticCommands = new Subject<PartialCountDownState>();
+
+const command$ = merge(
   counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
   counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
   counterUI.btnDown$.pipe(mapTo({ countUp: false })),
@@ -65,9 +71,9 @@ const command$ = merge<Partial<ICountDownState>>(
   programmaticCommands.asObservable()
 );
 
-const state$ = command$.pipe(
+const counterState$ = command$.pipe(
   startWith(initialCounterState),
-  scan<Partial<ICountDownState>, ICountDownState>((state, command) => ({
+  scan<PartialCountDownState, ICountDownState>((state, command) => ({
     ...state,
     ...command
   })),
@@ -75,12 +81,12 @@ const state$ = command$.pipe(
 );
 
 // == INTERMEDIATE OBSERVABLES ============================================
-const isTicking$ = state$.pipe(queryChange(CounterStateKeys.isTicking));
-const tickSpeed$ = state$.pipe(queryChange(CounterStateKeys.tickSpeed));
-const count$ = state$.pipe(queryChange(CounterStateKeys.count));
-const countDiff$ = state$.pipe(queryChange(CounterStateKeys.countDiff));
-const countUp$ = state$.pipe(queryChange(CounterStateKeys.countUp));
-const countData$ = combineLatest(count$, countDiff$, countUp$);
+const isTicking$ = counterState$.pipe(queryChange(CounterStateKeys.isTicking));
+const tickSpeed$ = counterState$.pipe(queryChange(CounterStateKeys.tickSpeed));
+const count$ = counterState$.pipe(queryChange(CounterStateKeys.count));
+const countDiff$ = counterState$.pipe(queryChange(CounterStateKeys.countDiff));
+const countUp$ = counterState$.pipe(queryChange(CounterStateKeys.countUp));
+const countInfo$ = combineLatest(count$, countDiff$, countUp$);
 
 const counterUpdateTrigger$ = combineLatest(isTicking$, tickSpeed$).pipe(
   switchMap(([isTicking, tickSpeed]) =>
@@ -91,26 +97,25 @@ const counterUpdateTrigger$ = combineLatest(isTicking$, tickSpeed$).pipe(
 // = SIDE EFFECTS =========================================================
 
 // == UI INPUTS ===========================================================
-const countInputUpdate$ = count$.pipe(
+const renderCountChange$ = count$.pipe(
   tap(n => counterUI.renderCounterValue(n))
 );
-
-const countDiffUpdate$ = countDiff$.pipe(
-  tap(n => counterUI.renderCountDiffInputValue(n))
-);
-
-const tickSpeedUpdate$ = tickSpeed$.pipe(
+const renderTickSpeedChange$ = tickSpeed$.pipe(
   tap(n => counterUI.renderTickSpeedInputValue(n))
 );
-
-const setToUpdate$ = counterUI.btnReset$.pipe(
-  tap(_ => counterUI.renderSetToInputValue('10'))
+const renderCountDiffChange$ = countDiff$.pipe(
+  tap(n => counterUI.renderCountDiffInputValue(n))
+);
+const renderSetToChange$ = counterUI.btnReset$.pipe(
+  tap(_ => {
+    counterUI.renderSetToInputValue('10');
+  })
 );
 
 // == UI OUTPUTS ==========================================================
 const commandFromTick$ = counterUpdateTrigger$.pipe(
-  withLatestFrom(countData$),
-  tap(([_, [count, countDiff, countUp]]) =>
+  withLatestFrom(countInfo$, (_, info) => info),
+  tap(([count, countDiff, countUp]) =>
     programmaticCommands.next({
       count: count + (countUp ? countDiff : -countDiff)
     })
@@ -120,10 +125,10 @@ const commandFromTick$ = counterUpdateTrigger$.pipe(
 // == SUBSCRIPTION ========================================================
 merge(
   // Input side effect,
-  countInputUpdate$,
-  countDiffUpdate$,
-  tickSpeedUpdate$,
-  setToUpdate$,
+  renderCountChange$,
+  renderTickSpeedChange$,
+  renderCountDiffChange$,
+  renderSetToChange$,
   // Output side effects
   commandFromTick$
 ).subscribe();

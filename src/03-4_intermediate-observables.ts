@@ -9,7 +9,12 @@ import {
   startWith,
   tap
 } from 'rxjs/operators';
-import { Counter, CounterStateKeys, ICountDownState } from './counter';
+import {
+  Counter,
+  CounterStateKeys,
+  ICountDownState,
+  PartialCountDownState
+} from './counter';
 
 // EXERCISE DESCRIPTION ==============================
 
@@ -53,7 +58,7 @@ const counterUI = new Counter(document.body, {
 // All our source observables are extracted into Counter class
 
 // === STATE OBSERVABLES ==================================================
-const counterCommands$ = merge(
+const counterCommands$ = merge<PartialCountDownState>(
   counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
   counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
   counterUI.btnSetTo$.pipe(map(n => ({ count: n }))),
@@ -64,14 +69,12 @@ const counterCommands$ = merge(
   counterUI.inputCountDiff$.pipe(map(n => ({ countDiff: n })))
 );
 
-const counterState$: Observable<ICountDownState> = counterCommands$.pipe(
+const counterState$ = counterCommands$.pipe(
   startWith(initialCounterState),
-  scan(
-    (counterState: ICountDownState, command): ICountDownState => ({
-      ...counterState,
-      ...command
-    })
-  ),
+  scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
+    ...counterState,
+    ...command
+  })),
   shareReplay(1)
 );
 

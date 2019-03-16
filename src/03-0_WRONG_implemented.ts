@@ -1,6 +1,6 @@
 import { merge, NEVER, timer } from 'rxjs';
-import { mapTo, switchMap, tap } from 'rxjs/operators';
-import { ICountDownState, Counter } from './counter';
+import { mapTo, switchMap, scan, take, tap } from 'rxjs/operators';
+import { Counter, ICountDownState } from './counter';
 
 // EXERCISE DESCRIPTION ==============================
 
@@ -21,28 +21,25 @@ import { ICountDownState, Counter } from './counter';
 
 // ==================================================================
 
+// == CONSTANTS ===========================================================
+// Setup counter state
 const initialCounterState: ICountDownState = {
-  isTicking: false,
   count: 0,
+  countDiff: 1,
   countUp: true,
-  tickSpeed: 200,
-  countDiff: 1
+  isTicking: false,
+  tickSpeed: 200
 };
 
 const counterUI = new Counter(document.body, {
+  initialCountDiff: initialCounterState.countDiff,
   initialSetTo: initialCounterState.count + 10,
-  initialTickSpeed: initialCounterState.tickSpeed,
-  initialCountDiff: initialCounterState.countDiff
+  initialTickSpeed: initialCounterState.tickSpeed
 });
 
-// WRONG SOLUTION ===================================================
+// WRONG SOLUTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // Never maintain state by mutating variables outside of streams
-
 let actualCount = initialCounterState.count;
-
-counterUI.btnSetTo$
-  .pipe(tap(n => (actualCount = n)))
-  .subscribe(_ => counterUI.renderCounterValue(actualCount));
 
 merge(
   counterUI.btnStart$.pipe(mapTo(true)),

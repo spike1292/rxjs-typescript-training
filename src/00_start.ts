@@ -21,21 +21,23 @@ import { Counter, ICountDownState } from './counter';
 
 // ==================================================================
 
+// == CONSTANTS ===========================================================
+// Setup counter state
 const initialCounterState: ICountDownState = {
-  isTicking: false,
   count: 0,
+  countDiff: 1,
   countUp: true,
-  tickSpeed: 200,
-  countDiff: 1
+  isTicking: false,
+  tickSpeed: 200
 };
 
 const counterUI = new Counter(document.body, {
+  initialCountDiff: initialCounterState.countDiff,
   initialSetTo: initialCounterState.count + 10,
-  initialTickSpeed: initialCounterState.tickSpeed,
-  initialCountDiff: initialCounterState.countDiff
+  initialTickSpeed: initialCounterState.tickSpeed
 });
 
 merge(
   counterUI.btnStart$.pipe(mapTo(1)),
   counterUI.btnPause$.pipe(mapTo(0))
-).subscribe(s => counterUI.renderCounterValue(s));
+).subscribe(console.log);

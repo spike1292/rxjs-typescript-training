@@ -73,14 +73,12 @@ const counterCommands$ = merge(
   programmaticCommandSubject.asObservable()
 );
 
-const counterState$: Observable<ICountDownState> = counterCommands$.pipe(
+const counterState$ = counterCommands$.pipe(
   startWith(initialCounterState),
-  scan(
-    (counterState: ICountDownState, command): ICountDownState => ({
-      ...counterState,
-      ...command
-    })
-  ),
+  scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
+    ...counterState,
+    ...command
+  })),
   shareReplay(1)
 );
 

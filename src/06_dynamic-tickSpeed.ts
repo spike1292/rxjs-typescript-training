@@ -1,4 +1,4 @@
-import { combineLatest, merge, NEVER, Observable, Subject, timer } from 'rxjs';
+import { combineLatest, merge, NEVER, Subject, timer } from 'rxjs';
 import {
   distinctUntilChanged,
   map,
@@ -73,14 +73,12 @@ const counterCommands$ = merge(
   programmaticCommandSubject.asObservable()
 );
 
-const counterState$: Observable<ICountDownState> = counterCommands$.pipe(
+const counterState$ = counterCommands$.pipe(
   startWith(initialCounterState),
-  scan(
-    (counterState: ICountDownState, command): ICountDownState => ({
-      ...counterState,
-      ...command
-    })
-  ),
+  scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
+    ...counterState,
+    ...command
+  })),
   shareReplay(1)
 );
 
@@ -102,8 +100,14 @@ const countDiff$ = counterState$.pipe(
   pluck(CounterStateKeys.countDiff),
   distinctUntilChanged<number>()
 );
+const countUp$ = counterState$.pipe(
+  pluck(CounterStateKeys.countUp),
+  distinctUntilChanged()
+);
 
-const counterUpdateTrigger$ = combineLatest([isTicking$, tickSpeed$]).pipe(
+const countInfo$ = combineLatest(count$, countUp$);
+
+const counterUpdateTrigger$ = combineLatest(isTicking$, tickSpeed$).pipe(
   switchMap(([isTicking, tickSpeed]) =>
     isTicking ? timer(0, tickSpeed) : NEVER
   )
@@ -129,11 +133,8 @@ const renderSetToChange$ = counterUI.btnReset$.pipe(
 
 // == UI OUTPUTS ==========================================================
 const commandFromTick$ = counterUpdateTrigger$.pipe(
-  withLatestFrom(counterState$, (_, counterState) => ({
-    [CounterStateKeys.count]: counterState.count,
-    [CounterStateKeys.countUp]: counterState.countUp
-  })),
-  tap(({ count, countUp }) =>
+  withLatestFrom(countInfo$, (_, info) => info),
+  tap(([count, countUp]) =>
     programmaticCommandSubject.next({ count: count + 1 * (countUp ? 1 : -1) })
   )
 );

@@ -21,21 +21,20 @@ import { Counter, ICountDownState } from './counter';
 
 // ==================================================================
 
-// == CONSTANTS ==
-// Setup conutDown state
+// == CONSTANTS ===========================================================
+// Setup counter state
 const initialCounterState: ICountDownState = {
-  isTicking: false,
   count: 0,
+  countDiff: 1,
   countUp: true,
-  tickSpeed: 200,
-  countDiff: 1
+  isTicking: false,
+  tickSpeed: 200
 };
 
-// Init CountDown counterUI
 const counterUI = new Counter(document.body, {
+  initialCountDiff: initialCounterState.countDiff,
   initialSetTo: initialCounterState.count + 10,
-  initialTickSpeed: initialCounterState.tickSpeed,
-  initialCountDiff: initialCounterState.countDiff
+  initialTickSpeed: initialCounterState.tickSpeed
 });
 
 // = BASE OBSERVABLES  ====================================================
@@ -47,7 +46,6 @@ const counterUI = new Counter(document.body, {
 
 // WRONG SOLUTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // Never maintain state by mutating variables outside of streams
-
 let actualCount = initialCounterState.count;
 
 // == UI INPUTS ===========================================================

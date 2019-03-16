@@ -73,14 +73,12 @@ const counterCommands$ = merge(
   programmaticCommandSubject.asObservable()
 );
 
-const counterState$: Observable<ICountDownState> = counterCommands$.pipe(
+const counterState$ = counterCommands$.pipe(
   startWith(initialCounterState),
-  scan(
-    (counterState: ICountDownState, command): ICountDownState => ({
-      ...counterState,
-      ...command
-    })
-  ),
+  scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
+    ...counterState,
+    ...command
+  })),
   shareReplay(1)
 );
 
@@ -88,7 +86,8 @@ const counterState$: Observable<ICountDownState> = counterCommands$.pipe(
 
 // == INTERMEDIATE OBSERVABLES ============================================
 const count$ = counterState$.pipe(
-  pluck<ICountDownState, number>(CounterStateKeys.count)
+  pluck(CounterStateKeys.count),
+  distinctUntilChanged()
 );
 const isTicking$ = counterState$.pipe(
   pluck(CounterStateKeys.isTicking),
@@ -102,8 +101,14 @@ const countDiff$ = counterState$.pipe(
   pluck(CounterStateKeys.countDiff),
   distinctUntilChanged<number>()
 );
+const countUp$ = counterState$.pipe(
+  pluck(CounterStateKeys.countUp),
+  distinctUntilChanged()
+);
 
-const counterUpdateTrigger$ = combineLatest([isTicking$, tickSpeed$]).pipe(
+const countInfo$ = combineLatest(count$, countUp$, countDiff$);
+
+const counterUpdateTrigger$ = combineLatest(isTicking$, tickSpeed$).pipe(
   switchMap(([isTicking, tickSpeed]) =>
     isTicking ? timer(0, tickSpeed) : NEVER
   )
@@ -129,12 +134,8 @@ const renderSetToChange$ = counterUI.btnReset$.pipe(
 
 // == UI OUTPUTS ==========================================================
 const commandFromTick$ = counterUpdateTrigger$.pipe(
-  withLatestFrom(counterState$, (_, counterState) => ({
-    [CounterStateKeys.count]: counterState.count,
-    [CounterStateKeys.countUp]: counterState.countUp,
-    [CounterStateKeys.countDiff]: counterState.countDiff
-  })),
-  tap(({ count, countUp, countDiff }) =>
+  withLatestFrom(countInfo$, (_, info) => info),
+  tap(([count, countUp, countDiff]) =>
     programmaticCommandSubject.next({
       count: count + countDiff * (countUp ? 1 : -1)
     })

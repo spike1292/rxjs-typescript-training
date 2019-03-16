@@ -80,33 +80,26 @@ const counterCommands$ = merge(
   programmaticCommandSubject.asObservable()
 );
 
-const counterState$: Observable<ICountDownState> = counterCommands$.pipe(
+const counterState$ = counterCommands$.pipe(
   startWith(initialCounterState),
-  scan(
-    (counterState: ICountDownState, command): ICountDownState => ({
-      ...counterState,
-      ...command
-    })
-  ),
+  scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
+    ...counterState,
+    ...command
+  })),
   shareReplay(1)
 );
 
 // === INTERACTION OBSERVABLES ============================================
 // == INTERMEDIATE OBSERVABLES ============================================
-const count$ = counterState$.pipe(
-  pluck<ICountDownState, number>(CounterStateKeys.count)
-);
-const isTicking$ = counterState$.pipe(
-  queryChange<ICountDownState, boolean>(CounterStateKeys.isTicking)
-);
-const tickSpeed$ = counterState$.pipe(
-  queryChange<ICountDownState, number>(CounterStateKeys.tickSpeed)
-);
-const countDiff$ = counterState$.pipe(
-  queryChange<ICountDownState, number>(CounterStateKeys.countDiff)
-);
+const count$ = counterState$.pipe(queryChange(CounterStateKeys.count));
+const isTicking$ = counterState$.pipe(queryChange(CounterStateKeys.isTicking));
+const tickSpeed$ = counterState$.pipe(queryChange(CounterStateKeys.tickSpeed));
+const countDiff$ = counterState$.pipe(queryChange(CounterStateKeys.countDiff));
+const countUp$ = counterState$.pipe(queryChange(CounterStateKeys.countUp));
 
-const counterUpdateTrigger$ = combineLatest([isTicking$, tickSpeed$]).pipe(
+const countInfo$ = combineLatest(count$, countUp$, countDiff$);
+
+const counterUpdateTrigger$ = combineLatest(isTicking$, tickSpeed$).pipe(
   switchMap(([isTicking, tickSpeed]) =>
     isTicking ? timer(0, tickSpeed) : NEVER
   )
@@ -132,12 +125,8 @@ const renderSetToChange$ = counterUI.btnReset$.pipe(
 
 // == UI OUTPUTS ==========================================================
 const commandFromTick$ = counterUpdateTrigger$.pipe(
-  withLatestFrom(counterState$, (_, counterState) => ({
-    [CounterStateKeys.count]: counterState.count,
-    [CounterStateKeys.countUp]: counterState.countUp,
-    [CounterStateKeys.countDiff]: counterState.countDiff
-  })),
-  tap(({ count, countUp, countDiff }) =>
+  withLatestFrom(countInfo$, (_, info) => info),
+  tap(([count, countUp, countDiff]) =>
     programmaticCommandSubject.next({
       count: count + countDiff * (countUp ? 1 : -1)
     })
@@ -160,11 +149,10 @@ merge(
 // = CUSTOM OPERATORS =====================================================
 // == CREATION METHODS ====================================================
 // == OPERATORS ===========================================================
-function queryChange<T, I>(
-  key: string
-): UnaryFunction<Observable<T>, Observable<I>> {
-  return pipe(
-    pluck<T, I>(key),
-    distinctUntilChanged<I>()
-  );
+function queryChange<T, K extends keyof T>(key: K) {
+  return (source: Observable<T>): Observable<T[K]> =>
+    source.pipe(
+      map(value => value[key]),
+      distinctUntilChanged()
+    );
 }
