@@ -4,6 +4,15 @@ Reactive programming, Event Sourcing & CQRS in the frontend
 
 [Slides](https://slides.com/spike1292/rxjs-typescript-workshop)
 
+## TODO
+
+- [ ] links to operator docs
+- [ ] review henk
+- [ ] explain files structure with assignments
+- [ ] expand test assignment + example
+- [ ] add marbles diagrams to explain
+- [ ] make index.ts start situation
+
 ## Prerequisites
 
 - vscode / webstorm
@@ -22,7 +31,7 @@ Reactive programming, Event Sourcing & CQRS in the frontend
 
 Open to [http://localhost:1234](http://localhost:1234) to see your hot reloaded project.
 
-## PROJECT STRUCTURE
+## 00 - Project Structure
 
 In the `src` directory there is an `index.ts` and a `count.ts` file. The `counter.ts` file countains a class you will use to implement the counter. The `index.ts` file contains the starting situation, you will expand this file to implement the counter.
 
@@ -39,27 +48,28 @@ Start the project and have a look at the starting situation in the browser. The 
 
 The starting scenario changes the counter value to 1 or 0 when you press `start` / `pause`.
 
-## Implement Interval
+## 01 - Implement Interval
 
 In order for the counter to actually count, we will need a signal on a fixed interval to update the count. RxJS offers an Observable creation method called `timer`. The goal in this step is to start a `timer` observable whenever `start` is pressed, and to stop it whenever `pause` is pressed. If you look at the starting scenario you will see we have an observable that emits when either `start` or `pause` is clicked.
 At the moment it only logs this to the console, use the `switchMap` operator to switch to a `timer` observable whenever `start` is clicked, when `pause` is clicked you can use the `NEVER` observable to stop emitting values.
 
 When implemented correctly when you press start the counter will start counting up from 0, pause will pause the timer at it's current value, and start will restart it from 0.
 
-## Maintain Interval State
+## 02 - Maintain Interval State
 
 Currently the timer resets when it's restarted after a pause, this is ofcourse not the desired functionality. After `switchMap`, use the `tap` operator to update a local variable which keeps track of the count state. Keep in mind we are not interested in the values that are emitted by the `timer` observable, but only use it to register ticks so we can update our state.
 
 After this step the counter should start counting up when you press `start`, pause on the current value when your click `pause`, and continue counting up after clicking `start` again.
 
-## Adding Structure
+## 03 - Adding Structure
 
-### Micro architecture
+### 03-1 - Micro architecture
 
 One of the benefits of observables is that they are lazy, and can be combined and re-used to compose new observables. Currently we are immediately subscribing to the observable we have, this prevents us from re-using it. During the following exercises we will be creating several more Observables, it is recommended to group the Observables by function.
 
 This is the structure we will be using.
 
+```ts
 // == CONSTANTS ===========================================================
 // = BASE OBSERVABLES ====================================================
 // == SOURCE OBSERVABLES ==================================================
@@ -76,6 +86,7 @@ This is the structure we will be using.
 // = CUSTOM OPERATORS =====================================================
 // == CREATION METHODS ====================================================
 // == OPERATORS ===========================================================
+```
 
 - Remove subscribe from the current observable and assign it to the variable `renderCountChangeFromTick$`
 - Create an Observable `renderCountChangeFromSetTo$` that uses `counterUI.btnSetTo$` to update the count state and call `counterUI.renderCounterValue` to update the count value on screen. You can use the `tap` operator to accomplish this.
@@ -84,14 +95,14 @@ This is the structure we will be using.
 
 The counter should still be working as before and the `Set To` button should update the count to the value in the input field next to it.
 
-### Event Sourcing
+### 03-2 - Event Sourcing
 
 In this step we will create an observable which combines all the events in the application and maps them to state update commands. Using the `merge` operator create an Observable `counterCommands$` the combines all the click and change observables from `counterUI` (btnStart$, btnPause$ etc.) and maps them to state update commands. You can use the `map` and `mapTo` operators to do this.
 The valid update commands are defined in the `PartialCounterState` type exported by `counter.ts`.
 
 For now subscribe to this observable and log it to the console.
 
-### CQRS
+### 03-3 - CQRS
 
 We now have a stream of state update commands in the `counterCommands$` observable, but we currently aren't doing anything with it. Create a new Observable called `counterState$` from the `counterCommands$` Observable. Our goal is to take the stream of state update commands, and apply them, to our current state, and emit the updated state. We want to start out with our initialState, the `startWith` operator can be used for this. The `scan` operator can be used to merge the state update commands into our current state, `scan` works in the same way as `array.reduce`.
 By default most Observabled are cold, we only want to have one instance of the state being shared to the rest of the application. In order to make the Observable hot we can use the `shareReplay` Operator, besides making the Observable hot it also always gives the last value to new subscribers instead of waiting for the next emission.
@@ -108,7 +119,7 @@ const counterState$ = counterCommands$.pipe(
 );
 ```
 
-### Intermediate observables
+### 03-4 - Intermediate observables
 
 We now have a `counterState$` Observable, which always gives us the entire state. We want to be able to act on single state value changes, only when that specific value changes. We can create intermediate Observables from the `counterState$` Obserable, do this for each of the properties on the state. Use the `pluck` operator and the `distinctUntillChanged` operator to do this. Put these under the INTERMEDIATE OBSERVABLES section.
 
@@ -119,7 +130,7 @@ const count$ = counterState$.pipe(
 );
 ```
 
-### Interval process
+### 03-5 - Interval process
 
 Up untill now we have based the interval tick on the start and pause commands. In the previous step we created observables on the individual state properties, and the tick itself can be based on the `isCounting$` and `intervalSpeed$` observables. Use the `merge` method to start, stop and/or update the timer when either property changes. Make this an Observable called `intervalTick$` and place it in INTERMEDIATE OBSERVABLES.
 
@@ -133,24 +144,24 @@ const programmaticCommandSubject = new Subject<PartialCountDownState>();
 
 Create an Observable `intervalProcess$` from `intervalTick$` which calls `programmaticCommandSubject.next({ count: newCount })` with the new count value on every tick. For now increment it by 1 every tick. Add the `intervalProcess$` Observable to the Observable you have subscribed to under the SUBSCRIBE section. The counter should work again now.
 
-### Reset
+## 04 - Reset
 
 The reset button currently resets the state due to the command it emits to the `counterCommands$` stream, but the input values are not currently updated. Under the SIDE EFFECTS - UI INPUTS section implement Observables that set the input values whenever the state values change using the `counterUI.render...InputValue` methods and `tap`. The intermediate observables should help with this.
 The setTo input value is not based on the application state, think of a way to make the reset button reset this value as well.
 
-### Countup
+## 05 - Countup
 
 Currently the counter can only count up, the buttons count up and count down already update the state. Use that state information to change the `intervalProcess$` Observable to support counting down, and back up again when those buttons are clicked.
 
-### Dynamic tickspeed
+## 06 - Dynamic tickspeed
 
 Currently the tickspeed isn't actually updated when the input is changed. Update the `intervalTick$` Observable to use the (intermediate) state to determine to interval speed.
 
-### Dynamic countDiff
+## 07 - Dynamic countDiff
 
 Currently the ammount the count is incremented and decremented is doesn't change when the countDiff input is changed. Alter the `intervalProcess$` Observable to use the state value to determine this.
 
-## Custom pipeble operator
+## 08 - Performance optimalisation & refactoring
 
 Currently we use a sequence of operators exactly the same way several times, namely this pattern.
 
@@ -186,8 +197,8 @@ from([1, 2, 3, 6])
 
 Move the duplicated code into a custom operator, which takes takes the state key name as property so it can be used with any state key.
 
-## Unit tests
+## 09 - Unit tests (WIP)
 
-The last step will be to write a number of unit tests for the code you have written. A common way to test RxJS observables is a via the `rxjs-marbles` library. This lets you easily re-create complex observable streams in tests while allowing you to control the timing. You can read about how to use it [here](https://github.com/cartant/rxjs-marbles)
+The last step will be to write a number of unit tests for the code you have written. A common way to test RxJS observables is a via the `rxjs-marbles` library. This lets you easily re-create complex observable streams in tests while allowing you to control the timing. You can read about how to use [rxjs-marbles](https://github.com/cartant/rxjs-marbles)
 
 Create an `index.spec.ts` file, and write a test that verifies that the `counterState$` observable emits a value when `next` is called on `programmaticCommandSubject`. You can run the test suite by running `yarn test`.
