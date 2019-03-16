@@ -91,23 +91,20 @@ const counterUpdateTrigger$ = combineLatest(isTicking$, tickSpeed$).pipe(
 // = SIDE EFFECTS =========================================================
 
 // == UI INPUTS ===========================================================
-const countInputUpdate$ = state$.pipe(
-  queryChange(CounterStateKeys.count),
+const countInputUpdate$ = count$.pipe(
   tap(n => counterUI.renderCounterValue(n))
 );
 
-const countDiffUpdate$ = state$.pipe(
-  queryChange(CounterStateKeys.countDiff),
+const countDiffUpdate$ = countDiff$.pipe(
   tap(n => counterUI.renderCountDiffInputValue(n))
 );
 
-const tickSpeedUpdate$ = state$.pipe(
-  queryChange(CounterStateKeys.tickSpeed),
+const tickSpeedUpdate$ = tickSpeed$.pipe(
   tap(n => counterUI.renderTickSpeedInputValue(n))
 );
 
 const setToUpdate$ = counterUI.btnReset$.pipe(
-  tap(_ => counterUI.renderSetToInputValue(`${initialCounterState.count + 10}`))
+  tap(_ => counterUI.renderSetToInputValue('10'))
 );
 
 // == UI OUTPUTS ==========================================================
@@ -122,11 +119,13 @@ const commandFromTick$ = counterUpdateTrigger$.pipe(
 
 // == SUBSCRIPTION ========================================================
 merge(
-  commandFromTick$,
+  // Input side effect,
   countInputUpdate$,
   countDiffUpdate$,
   tickSpeedUpdate$,
-  setToUpdate$
+  setToUpdate$,
+  // Output side effects
+  commandFromTick$
 ).subscribe();
 
 // = HELPER ===============================================================
