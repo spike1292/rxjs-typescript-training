@@ -4,6 +4,8 @@ Operating Heavily Dynamic UI's
 
 _Event Sourcing & CQRS in the frontend_
 
+[Slides](https://slides.com/spike1292/rxjs-workshop)
+
 ## Prerequisites
 
 - vscode / webstorm
