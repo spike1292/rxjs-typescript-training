@@ -43,11 +43,12 @@ const initialCounterState: CountDownState = {
   count: 0,
   countUp: true,
   tickSpeed: 200,
-  countDiff: 1
+  countDiff: 1,
+  setTo: 10
 };
 
 const counterUI = new Counter(document.body, {
-  initialSetTo: initialCounterState.count + 10,
+  initialSetTo: initialCounterState.setTo,
   initialTickSpeed: initialCounterState.tickSpeed,
   initialCountDiff: initialCounterState.countDiff
 });
@@ -76,15 +77,10 @@ const state$ = command$.pipe(
 );
 
 const isTicking$ = state$.pipe(queryChange(CounterStateKeys.isTicking));
-
 const tickSpeed$ = state$.pipe(queryChange(CounterStateKeys.tickSpeed));
-
 const count$ = state$.pipe(queryChange(CounterStateKeys.count));
-
 const countDiff$ = state$.pipe(queryChange(CounterStateKeys.countDiff));
-
 const countUp$ = state$.pipe(queryChange(CounterStateKeys.countUp));
-
 const countData$ = combineLatest(count$, countDiff$, countUp$);
 
 const tick$ = combineLatest(isTicking$, tickSpeed$).pipe(
@@ -108,5 +104,26 @@ state$
   .pipe(
     queryChange(CounterStateKeys.count),
     tap(n => counterUI.renderCounterValue(n))
+  )
+  .subscribe();
+
+state$
+  .pipe(
+    queryChange(CounterStateKeys.countDiff),
+    tap(n => counterUI.renderCountDiffInputValue(n))
+  )
+  .subscribe();
+
+state$
+  .pipe(
+    queryChange(CounterStateKeys.tickSpeed),
+    tap(n => counterUI.renderTickSpeedInputValue(n))
+  )
+  .subscribe();
+
+state$
+  .pipe(
+    queryChange(CounterStateKeys.setTo),
+    tap(n => counterUI.renderSetToInputValue(n.toString()))
   )
   .subscribe();
