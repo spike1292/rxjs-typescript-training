@@ -63,6 +63,8 @@ In this section we will
 
 ## TIMER
 
+In this section we will create an observable that will emit on a fixed interval, this will be used as the tick for the timer. The observable should only emit when `isTicking` is true. RxJS
+
 1. Create a `timerProcessChange$` observable in the section "OBSERVABLES".
 2. Use the `state$` to get the isTicking value. Use the "switchMap NEVER" pattern from before to start a timer.
 3. Create a `programmaticCommands` subject in section "STATE" - "Command"
