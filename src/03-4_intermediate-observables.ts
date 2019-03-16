@@ -1,4 +1,4 @@
-import { merge, Observable } from 'rxjs';
+import { merge } from 'rxjs';
 import {
   distinctUntilChanged,
   map,

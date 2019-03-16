@@ -1,4 +1,4 @@
-import { merge, NEVER, Observable, timer } from 'rxjs';
+import { merge, NEVER, timer } from 'rxjs';
 import {
   map,
   mapTo,

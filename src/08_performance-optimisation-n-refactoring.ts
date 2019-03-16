@@ -1,13 +1,4 @@
-import {
-  combineLatest,
-  merge,
-  NEVER,
-  Observable,
-  pipe,
-  Subject,
-  timer,
-  UnaryFunction
-} from 'rxjs';
+import { combineLatest, merge, NEVER, Observable, Subject, timer } from 'rxjs';
 import {
   distinctUntilChanged,
   map,
