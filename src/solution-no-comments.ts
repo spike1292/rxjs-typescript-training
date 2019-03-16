@@ -7,7 +7,7 @@ import {
   Subject,
   timer,
   UnaryFunction
-} from "rxjs";
+} from 'rxjs';
 import {
   distinctUntilChanged,
   map,
@@ -19,13 +19,13 @@ import {
   switchMap,
   tap,
   withLatestFrom
-} from "rxjs/operators";
+} from 'rxjs/operators';
 import {
   CountDownState,
   Counter,
   CounterStateKeys,
   PartialCountDownState
-} from "./counter";
+} from './counter';
 
 const initialCounterState: CountDownState = {
   count: 0,
@@ -95,7 +95,7 @@ const renderCountDiffChange$ = countDiff$.pipe(
 );
 const renderSetToChange$ = counterUI.btnReset$.pipe(
   tap(_ => {
-    counterUI.renderSetToInputValue("10");
+    counterUI.renderSetToInputValue('10');
   })
 );
 const commandFromTick$ = counterUpdateTrigger$.pipe(

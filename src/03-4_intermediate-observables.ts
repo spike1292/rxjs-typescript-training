@@ -1,16 +1,25 @@
-import {Counter, CountDownState, CounterStateKeys} from './counter'
-import { Observable, Observer, NEVER, Subject, pipe, timer, combineLatest, merge} from 'rxjs'; 
-import { map, mapTo, withLatestFrom,tap, distinctUntilChanged, shareReplay,distinctUntilKeyChanged, startWith, scan, pluck, switchMap} from 'rxjs/operators';
+import { merge, Observable } from 'rxjs';
+import {
+  distinctUntilChanged,
+  map,
+  mapTo,
+  pluck,
+  scan,
+  shareReplay,
+  startWith,
+  tap
+} from 'rxjs/operators';
+import { CountDownState, Counter, CounterStateKeys } from './counter';
 
 // EXERCISE DESCRIPTION ==============================
 
 /**
  * Use `CounterStateKeys` for property names.
  * Explort the counterUI API by typing `counterUI.` somewhere. ;)
- * 
- * Implement all features of the counter: 
- * 1. Start, pause the counter. Then restart the counter with 0 (+)  
- * 2. Start it again from paused number (++) 
+ *
+ * Implement all features of the counter:
+ * 1. Start, pause the counter. Then restart the counter with 0 (+)
+ * 2. Start it again from paused number (++)
  * 3. If Set to button is clicked set counter value to input value while counting (+++)
  * 4. Reset to initial state if reset button is clicked (+)
  * 5. If count up button is clicked count up, if count down button is clicked count down  (+)
@@ -21,26 +30,22 @@ import { map, mapTo, withLatestFrom,tap, distinctUntilChanged, shareReplay,disti
 
 // ==================================================================
 
-
 // == CONSTANTS ===========================================================
 // Setup conutDown state
 const initialCounterState: CountDownState = {
-  isTicking: false, 
-  count: 0, 
-  countUp: true, 
-  tickSpeed: 200, 
-  countDiff:1
+  isTicking: false,
+  count: 0,
+  countUp: true,
+  tickSpeed: 200,
+  countDiff: 1
 };
 
 // Init CountDown counterUI
-const counterUI = new Counter(
-  document.body,
-  {
-    initialSetTo: initialCounterState.count + 10,
-    initialTickSpeed: initialCounterState.tickSpeed,
-    initialCountDiff: initialCounterState.countDiff,
-  }
-);
+const counterUI = new Counter(document.body, {
+  initialSetTo: initialCounterState.count + 10,
+  initialTickSpeed: initialCounterState.tickSpeed,
+  initialCountDiff: initialCounterState.countDiff
+});
 
 // = BASE OBSERVABLES  ====================================================
 // == SOURCE OBSERVABLES ==================================================
@@ -49,33 +54,41 @@ const counterUI = new Counter(
 
 // === STATE OBSERVABLES ==================================================
 const counterCommands$ = merge(
-  counterUI.btnStart$.pipe(mapTo({isTicking: true})), 
-  counterUI.btnPause$.pipe(mapTo({isTicking: false})),
-  counterUI.btnSetTo$.pipe(map(n => ({count: n}))),
-  counterUI.btnUp$.pipe(mapTo({countUp: true})),
-  counterUI.btnDown$.pipe(mapTo({countUp: false})),
-  counterUI.btnReset$.pipe(mapTo({...initialCounterState})),
-  counterUI.inputTickSpeed$.pipe(map ( n => ({tickSpeed: n}))),
-  counterUI.inputCountDiff$.pipe(map ( n => ({countDiff: n})))
+  counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
+  counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
+  counterUI.btnSetTo$.pipe(map(n => ({ count: n }))),
+  counterUI.btnUp$.pipe(mapTo({ countUp: true })),
+  counterUI.btnDown$.pipe(mapTo({ countUp: false })),
+  counterUI.btnReset$.pipe(mapTo({ ...initialCounterState })),
+  counterUI.inputTickSpeed$.pipe(map(n => ({ tickSpeed: n }))),
+  counterUI.inputCountDiff$.pipe(map(n => ({ countDiff: n })))
 );
 
-const counterState$: Observable<CountDownState> = counterCommands$
-  .pipe(
-    startWith(initialCounterState),
-    scan( (counterState: CountDownState, command): CountDownState => ( {...counterState, ...command} ) ),
-    shareReplay(1)
-  );
+const counterState$: Observable<CountDownState> = counterCommands$.pipe(
+  startWith(initialCounterState),
+  scan(
+    (counterState: CountDownState, command): CountDownState => ({
+      ...counterState,
+      ...command
+    })
+  ),
+  shareReplay(1)
+);
 
 // === INTERACTION OBSERVABLES ============================================
 
 // == INTERMEDIATE OBSERVABLES ============================================
-const count$ = counterState$.pipe(pluck<CountDownState, number>(CounterStateKeys.count));
-const isTicking$ = counterState$.pipe(pluck(CounterStateKeys.isTicking), distinctUntilChanged<boolean>());
+const count$ = counterState$.pipe(
+  pluck<CountDownState, number>(CounterStateKeys.count)
+);
+const isTicking$ = counterState$.pipe(
+  pluck(CounterStateKeys.isTicking),
+  distinctUntilChanged<boolean>()
+);
 
 // = SIDE EFFECTS =========================================================
 // == UI INPUTS ===========================================================
-const renderCountChange$ = count$
-.pipe(
+const renderCountChange$ = count$.pipe(
   tap(n => counterUI.renderCounterValue(n))
 );
 
@@ -89,8 +102,7 @@ merge(
   // Input side effect
   renderCountChange$
   // Outputs side effect
-)
-.subscribe();
+).subscribe();
 
 // = HELPER ===============================================================
 // = CUSTOM OPERATORS =====================================================

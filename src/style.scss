@@ -1,5 +1,5 @@
 body {
-  font: 16px/1 "Roboto", sans-serif;
+  font: 16px/1 'Roboto', sans-serif;
   color: #000;
   background: #eee;
   -webkit-font-smoothing: antialiased;
@@ -20,8 +20,8 @@ label {
   color: rgb(0, 0, 0);
 }
 
-input[type="number"],
-input[type="text"] {
+input[type='number'],
+input[type='text'] {
   width: 400px;
   font-weight: bold;
   margin: 0 0 20px;
@@ -33,7 +33,7 @@ input[type="text"] {
 }
 
 button,
-input[type="submit"] {
+input[type='submit'] {
   width: 150px;
   margin: 0 0 20px;
   padding: 8px 0 10px 0;
@@ -49,7 +49,7 @@ input[type="submit"] {
   min-height: 240px;
   width: 100%;
   margin: 0 auto;
-  font: 120px/1.5 "Open Sans Condensed", sans-serif;
+  font: 120px/1.5 'Open Sans Condensed', sans-serif;
   text-align: center;
   letter-spacing: -3px;
 
@@ -95,7 +95,7 @@ input[type="submit"] {
       margin-left: -3px;
       top: 0.5em;
       box-shadow: 1px 1px 1px rgba(4, 4, 4, 0.5);
-      content: "";
+      content: '';
     }
 
     &:after {
