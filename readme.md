@@ -1,17 +1,24 @@
 # RxJS Typescript Workshop
 
-Operating Heavily Dynamic UI's _Event Sourcing & CQRS in the frontend_
+Operating Heavily Dynamic UI's
+
+_Event Sourcing & CQRS in the frontend_
 
 ## Prerequisites
 
 - vscode / webstorm
+  - <https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-tslint-plugin>
+  - <https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode>
+  - <https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig>
 - [node lts (10)](https://nodejs.org/en/download/)
 - [yarn](https://yarnpkg.com/en/docs/install)
 
 ## Setup
 
+1. `git clone quintorgit@git.quintor.nl:SG-QuintorAcademy/rxjs.git`
+1. `cd rxjs`
 1. `yarn install`
-2. `yarn start`
+1. `yarn start`
 
 Open to [http://localhost:1234](http://localhost:1234) to see your hot reloaded project.
 
