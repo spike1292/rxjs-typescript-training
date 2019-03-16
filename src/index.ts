@@ -7,7 +7,8 @@ import {
   shareReplay,
   switchMap,
   tap,
-  withLatestFrom
+  withLatestFrom,
+  startWith
 } from 'rxjs/operators';
 import { Counter, CounterStateKeys, ICountDownState } from './counter';
 
@@ -68,10 +69,11 @@ const command$ = merge<Partial<ICountDownState>>(
 );
 
 const state$ = command$.pipe(
-  scan<Partial<ICountDownState>, ICountDownState>(
-    (state, command) => ({ ...state, ...command }),
-    initialCounterState
-  ),
+  startWith(initialCounterState),
+  scan<Partial<ICountDownState>, ICountDownState>((state, command) => ({
+    ...state,
+    ...command
+  })),
   shareReplay(1)
 );
 
@@ -88,34 +90,38 @@ const tick$ = combineLatest(isTicking$, tickSpeed$).pipe(
   )
 );
 
-tick$
-  .pipe(
-    withLatestFrom(countData$),
-    tap(([_, [count, countDiff, countUp]]) =>
-      programmaticCommands.next({
-        count: count + (countUp ? countDiff : -countDiff)
-      })
-    )
+const tickUpdate$ = tick$.pipe(
+  withLatestFrom(countData$),
+  tap(([_, [count, countDiff, countUp]]) =>
+    programmaticCommands.next({
+      count: count + (countUp ? countDiff : -countDiff)
+    })
   )
-  .subscribe();
+);
 
-state$
-  .pipe(
-    queryChange(CounterStateKeys.count),
-    tap(n => counterUI.renderCounterValue(n))
-  )
-  .subscribe();
+const countInputUpdate$ = state$.pipe(
+  queryChange(CounterStateKeys.count),
+  tap(n => counterUI.renderCounterValue(n))
+);
 
-state$
-  .pipe(
-    queryChange(CounterStateKeys.countDiff),
-    tap(n => counterUI.renderCountDiffInputValue(n))
-  )
-  .subscribe();
+const countDiffUpdate$ = state$.pipe(
+  queryChange(CounterStateKeys.countDiff),
+  tap(n => counterUI.renderCountDiffInputValue(n))
+);
 
-state$
-  .pipe(
-    queryChange(CounterStateKeys.tickSpeed),
-    tap(n => counterUI.renderTickSpeedInputValue(n))
-  )
-  .subscribe();
+const tickSpeedUpdate$ = state$.pipe(
+  queryChange(CounterStateKeys.tickSpeed),
+  tap(n => counterUI.renderTickSpeedInputValue(n))
+);
+
+const setToUpdate$ = counterUI.btnReset$.pipe(
+  tap(_ => counterUI.renderSetToInputValue(`${initialCounterState.count + 10}`))
+);
+
+merge(
+  tickUpdate$,
+  countInputUpdate$,
+  countDiffUpdate$,
+  tickSpeedUpdate$,
+  setToUpdate$
+).subscribe();
