@@ -120,7 +120,6 @@ export class Counter {
     <input id="${
       ElementIds.InputTickSpeed
     }" style="width:60px" type="number" min=0 value="${this.initialTickSpeed}"/>
-
 <!-- I'm sorry for this, but I was lazy.. :) -->
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 

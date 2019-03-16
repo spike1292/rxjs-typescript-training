@@ -76,15 +76,10 @@ const state$ = command$.pipe(
 );
 
 const isTicking$ = state$.pipe(queryChange(CounterStateKeys.isTicking));
-
 const tickSpeed$ = state$.pipe(queryChange(CounterStateKeys.tickSpeed));
-
 const count$ = state$.pipe(queryChange(CounterStateKeys.count));
-
 const countDiff$ = state$.pipe(queryChange(CounterStateKeys.countDiff));
-
 const countUp$ = state$.pipe(queryChange(CounterStateKeys.countUp));
-
 const countData$ = combineLatest(count$, countDiff$, countUp$);
 
 const tick$ = combineLatest(isTicking$, tickSpeed$).pipe(
@@ -108,5 +103,19 @@ state$
   .pipe(
     queryChange(CounterStateKeys.count),
     tap(n => counterUI.renderCounterValue(n))
+  )
+  .subscribe();
+
+state$
+  .pipe(
+    queryChange(CounterStateKeys.countDiff),
+    tap(n => counterUI.renderCountDiffInputValue(n))
+  )
+  .subscribe();
+
+state$
+  .pipe(
+    queryChange(CounterStateKeys.tickSpeed),
+    tap(n => counterUI.renderTickSpeedInputValue(n))
   )
   .subscribe();
