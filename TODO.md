@@ -10,3 +10,4 @@
 - [ ] incremental ui (branches)
 - [ ] assignments in branches (information overload)
 - [ ] explain `counter.ts`
+- [ ] meer tijd voor interactieve vragen of voorkauwen
