@@ -1,4 +1,4 @@
-import { combineLatest, merge, NEVER, Observable, Subject, timer } from 'rxjs';
+import { combineLatest, merge, NEVER, Subject, timer } from 'rxjs';
 import {
   distinctUntilChanged,
   map,
@@ -16,7 +16,7 @@ import {
   CounterStateKeys,
   ICountDownState,
   PartialCountDownState
-} from './counter';
+} from '../counter';
 
 // EXERCISE DESCRIPTION ===================================================
 
@@ -39,7 +39,7 @@ import {
 
 // == CONSTANTS ===========================================================
 // Setup conutDown state
-export const initialCounterState: ICountDownState = {
+const initialCounterState: ICountDownState = {
   count: 0,
   isTicking: false,
   tickSpeed: 200,
@@ -56,9 +56,11 @@ const counterUI = new Counter(document.body, {
 
 // = BASE OBSERVABLES  ====================================================
 // == SOURCE OBSERVABLES ==================================================
+
 // All our source observables are extracted into Counter class to hide away all the low leven bindings.
+
 // === STATE OBSERVABLES ==================================================
-export const programmaticCommandSubject = new Subject<PartialCountDownState>();
+const programmaticCommandSubject = new Subject<PartialCountDownState>();
 const counterCommands$ = merge(
   counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
   counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
@@ -71,7 +73,7 @@ const counterCommands$ = merge(
   programmaticCommandSubject.asObservable()
 );
 
-export const counterState$ = counterCommands$.pipe(
+const counterState$ = counterCommands$.pipe(
   startWith(initialCounterState),
   scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
     ...counterState,
@@ -81,14 +83,29 @@ export const counterState$ = counterCommands$.pipe(
 );
 
 // === INTERACTION OBSERVABLES ============================================
-// == INTERMEDIATE OBSERVABLES ============================================
-const count$ = counterState$.pipe(queryChange(CounterStateKeys.count));
-const isTicking$ = counterState$.pipe(queryChange(CounterStateKeys.isTicking));
-const tickSpeed$ = counterState$.pipe(queryChange(CounterStateKeys.tickSpeed));
-const countDiff$ = counterState$.pipe(queryChange(CounterStateKeys.countDiff));
-const countUp$ = counterState$.pipe(queryChange(CounterStateKeys.countUp));
 
-const countInfo$ = combineLatest(count$, countUp$, countDiff$);
+// == INTERMEDIATE OBSERVABLES ============================================
+const count$ = counterState$.pipe(
+  pluck<ICountDownState, number>(CounterStateKeys.count)
+);
+const isTicking$ = counterState$.pipe(
+  pluck(CounterStateKeys.isTicking),
+  distinctUntilChanged<boolean>()
+);
+const tickSpeed$ = counterState$.pipe(
+  pluck(CounterStateKeys.tickSpeed),
+  distinctUntilChanged<number>()
+);
+const countDiff$ = counterState$.pipe(
+  pluck(CounterStateKeys.countDiff),
+  distinctUntilChanged<number>()
+);
+const countUp$ = counterState$.pipe(
+  pluck(CounterStateKeys.countUp),
+  distinctUntilChanged()
+);
+
+const countInfo$ = combineLatest(count$, countUp$);
 
 const counterUpdateTrigger$ = combineLatest(isTicking$, tickSpeed$).pipe(
   switchMap(([isTicking, tickSpeed]) =>
@@ -117,10 +134,8 @@ const renderSetToChange$ = counterUI.btnReset$.pipe(
 // == UI OUTPUTS ==========================================================
 const commandFromTick$ = counterUpdateTrigger$.pipe(
   withLatestFrom(countInfo$, (_, info) => info),
-  tap(([count, countUp, countDiff]) =>
-    programmaticCommandSubject.next({
-      count: count + countDiff * (countUp ? 1 : -1)
-    })
+  tap(([count, countUp]) =>
+    programmaticCommandSubject.next({ count: count + 1 * (countUp ? 1 : -1) })
   )
 );
 
@@ -140,10 +155,3 @@ merge(
 // = CUSTOM OPERATORS =====================================================
 // == CREATION METHODS ====================================================
 // == OPERATORS ===========================================================
-function queryChange<T, K extends keyof T>(key: K) {
-  return (source: Observable<T>): Observable<T[K]> =>
-    source.pipe(
-      pluck(key),
-      distinctUntilChanged()
-    );
-}

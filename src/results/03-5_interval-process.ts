@@ -1,4 +1,4 @@
-import { merge, NEVER, Subject, timer } from 'rxjs';
+import { merge, NEVER, Observable, Subject, timer } from 'rxjs';
 import {
   distinctUntilChanged,
   map,
@@ -16,7 +16,7 @@ import {
   CounterStateKeys,
   ICountDownState,
   PartialCountDownState
-} from './counter';
+} from '../counter';
 
 // EXERCISE DESCRIPTION ==============================
 
@@ -40,10 +40,10 @@ import {
 // == CONSTANTS ===========================================================
 // Setup conutDown state
 const initialCounterState: ICountDownState = {
-  count: 0,
   isTicking: false,
-  tickSpeed: 200,
+  count: 0,
   countUp: true,
+  tickSpeed: 200,
   countDiff: 1
 };
 
@@ -57,7 +57,7 @@ const counterUI = new Counter(document.body, {
 // = BASE OBSERVABLES  ====================================================
 // == SOURCE OBSERVABLES ==================================================
 
-// All our source observables are extracted into Counter class to hide away all the low leven bindings.
+// All our source observables are extracted into Counter class
 
 // === STATE OBSERVABLES ==================================================
 const programmaticCommandSubject = new Subject<PartialCountDownState>();
@@ -73,7 +73,7 @@ const counterCommands$ = merge(
   programmaticCommandSubject.asObservable()
 );
 
-const counterState$ = counterCommands$.pipe(
+const counterState$: Observable<ICountDownState> = counterCommands$.pipe(
   startWith(initialCounterState),
   scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
     ...counterState,
@@ -92,16 +92,8 @@ const isTicking$ = counterState$.pipe(
   pluck(CounterStateKeys.isTicking),
   distinctUntilChanged<boolean>()
 );
-const tickSpeed$ = counterState$.pipe(
-  pluck(CounterStateKeys.tickSpeed),
-  distinctUntilChanged<number>()
-);
-const countDiff$ = counterState$.pipe(
-  pluck(CounterStateKeys.countDiff),
-  distinctUntilChanged<number>()
-);
 
-const counterUpdateTrigger$ = isTicking$.pipe(
+const intervalTick$ = isTicking$.pipe(
   switchMap(isTicking =>
     isTicking ? timer(0, initialCounterState.tickSpeed) : NEVER
   )
@@ -112,20 +104,9 @@ const counterUpdateTrigger$ = isTicking$.pipe(
 const renderCountChange$ = count$.pipe(
   tap(n => counterUI.renderCounterValue(n))
 );
-const renderTickSpeedChange$ = tickSpeed$.pipe(
-  tap(n => counterUI.renderTickSpeedInputValue(n))
-);
-const renderCountDiffChange$ = countDiff$.pipe(
-  tap(n => counterUI.renderCountDiffInputValue(n))
-);
-const renderSetToChange$ = counterUI.btnReset$.pipe(
-  tap(_ => {
-    counterUI.renderSetToInputValue('10');
-  })
-);
 
 // == UI OUTPUTS ==========================================================
-const commandFromTick$ = counterUpdateTrigger$.pipe(
+const commandFromTick$ = intervalTick$.pipe(
   withLatestFrom(count$, (_, count) => count),
   tap(count => programmaticCommandSubject.next({ count: ++count }))
 );
@@ -135,9 +116,6 @@ const commandFromTick$ = counterUpdateTrigger$.pipe(
 merge(
   // Input side effect
   renderCountChange$,
-  renderTickSpeedChange$,
-  renderCountDiffChange$,
-  renderSetToChange$,
   // Outputs side effect
   commandFromTick$
 ).subscribe();

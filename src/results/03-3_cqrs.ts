@@ -1,6 +1,14 @@
 import { merge, NEVER, timer } from 'rxjs';
-import { mapTo, switchMap, tap } from 'rxjs/operators';
-import { Counter, ICountDownState } from './counter';
+import {
+  map,
+  mapTo,
+  scan,
+  shareReplay,
+  startWith,
+  switchMap,
+  tap
+} from 'rxjs/operators';
+import { Counter, ICountDownState, PartialCountDownState } from '../counter';
 
 // EXERCISE DESCRIPTION ==============================
 
@@ -22,30 +30,55 @@ import { Counter, ICountDownState } from './counter';
 // ==================================================================
 
 // == CONSTANTS ===========================================================
-// Setup counter state
+// Setup conutDown state
 const initialCounterState: ICountDownState = {
-  count: 0,
-  countDiff: 1,
-  countUp: true,
   isTicking: false,
-  tickSpeed: 200
+  count: 0,
+  countUp: true,
+  tickSpeed: 200,
+  countDiff: 1
 };
 
+// Init CountDown counterUI
 const counterUI = new Counter(document.body, {
-  initialCountDiff: initialCounterState.countDiff,
   initialSetTo: initialCounterState.count + 10,
-  initialTickSpeed: initialCounterState.tickSpeed
+  initialTickSpeed: initialCounterState.tickSpeed,
+  initialCountDiff: initialCounterState.countDiff
 });
 
 // = BASE OBSERVABLES  ====================================================
 // == SOURCE OBSERVABLES ==================================================
 // === STATE OBSERVABLES ==================================================
+const counterCommands$ = merge<PartialCountDownState>(
+  counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
+  counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
+  counterUI.btnSetTo$.pipe(map(n => ({ count: n }))),
+  counterUI.btnUp$.pipe(mapTo({ countUp: true })),
+  counterUI.btnDown$.pipe(mapTo({ countUp: false })),
+  counterUI.btnReset$.pipe(mapTo({ ...initialCounterState })),
+  counterUI.inputTickSpeed$.pipe(map(n => ({ tickSpeed: n }))),
+  counterUI.inputCountDiff$.pipe(map(n => ({ countDiff: n })))
+);
+
+const counterState$ = counterCommands$.pipe(
+  startWith(initialCounterState),
+  scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
+    ...counterState,
+    ...command
+  })),
+  shareReplay(1)
+);
+
+// JUST FOR TESTING
+counterState$.subscribe(console.log);
+
 // === INTERACTION OBSERVABLES ============================================
 // == INTERMEDIATE OBSERVABLES ============================================
 // = SIDE EFFECTS =========================================================
 
 // WRONG SOLUTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // Never maintain state by mutating variables outside of streams
+
 let actualCount = initialCounterState.count;
 
 // == UI INPUTS ===========================================================

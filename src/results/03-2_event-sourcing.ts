@@ -1,20 +1,6 @@
-import { merge } from 'rxjs';
-import {
-  distinctUntilChanged,
-  map,
-  mapTo,
-  pluck,
-  scan,
-  shareReplay,
-  startWith,
-  tap
-} from 'rxjs/operators';
-import {
-  Counter,
-  CounterStateKeys,
-  ICountDownState,
-  PartialCountDownState
-} from './counter';
+import { merge, NEVER, timer } from 'rxjs';
+import { map, mapTo, switchMap, tap } from 'rxjs/operators';
+import { Counter, ICountDownState } from '../counter';
 
 // EXERCISE DESCRIPTION ==============================
 
@@ -54,11 +40,8 @@ const counterUI = new Counter(document.body, {
 
 // = BASE OBSERVABLES  ====================================================
 // == SOURCE OBSERVABLES ==================================================
-
-// All our source observables are extracted into Counter class
-
 // === STATE OBSERVABLES ==================================================
-const counterCommands$ = merge<PartialCountDownState>(
+const counterCommands$ = merge(
   counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
   counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
   counterUI.btnSetTo$.pipe(map(n => ({ count: n }))),
@@ -69,33 +52,34 @@ const counterCommands$ = merge<PartialCountDownState>(
   counterUI.inputCountDiff$.pipe(map(n => ({ countDiff: n })))
 );
 
-const counterState$ = counterCommands$.pipe(
-  startWith(initialCounterState),
-  scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
-    ...counterState,
-    ...command
-  })),
-  shareReplay(1)
-);
+// !!! REMOVE LATER !!! JUST FOR TESTING
+counterCommands$.subscribe(console.log);
 
 // === INTERACTION OBSERVABLES ============================================
-
 // == INTERMEDIATE OBSERVABLES ============================================
-const count$ = counterState$.pipe(
-  pluck<ICountDownState, number>(CounterStateKeys.count)
-);
-const isTicking$ = counterState$.pipe(
-  pluck(CounterStateKeys.isTicking),
-  distinctUntilChanged<boolean>()
-);
-
 // = SIDE EFFECTS =========================================================
+
+// WRONG SOLUTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// Never maintain state by mutating variables outside of streams
+
+let actualCount = initialCounterState.count;
+
 // == UI INPUTS ===========================================================
-const renderCountChange$ = count$.pipe(
-  tap(n => counterUI.renderCounterValue(n))
+const renderCountChangeFromTick$ = merge(
+  counterUI.btnStart$.pipe(mapTo(true)),
+  counterUI.btnPause$.pipe(mapTo(false))
+).pipe(
+  switchMap(isTicking =>
+    isTicking ? timer(0, initialCounterState.tickSpeed) : NEVER
+  ),
+  tap(_ => ++actualCount),
+  tap(_ => counterUI.renderCounterValue(actualCount))
 );
 
-// WRONG SOLUTION REMOVED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+const renderCountChangeFromSetTo$ = counterUI.btnSetTo$.pipe(
+  tap(n => (actualCount = n)),
+  tap(_ => counterUI.renderCounterValue(actualCount))
+);
 
 // == UI OUTPUTS ==========================================================
 
@@ -103,8 +87,9 @@ const renderCountChange$ = count$.pipe(
 
 merge(
   // Input side effect
-  renderCountChange$
+  renderCountChangeFromTick$,
   // Outputs side effect
+  renderCountChangeFromSetTo$
 ).subscribe();
 
 // = HELPER ===============================================================

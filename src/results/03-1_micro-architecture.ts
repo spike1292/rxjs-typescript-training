@@ -1,6 +1,6 @@
 import { merge, NEVER, timer } from 'rxjs';
-import { map, mapTo, switchMap, tap } from 'rxjs/operators';
-import { Counter, ICountDownState } from './counter';
+import { mapTo, switchMap, tap } from 'rxjs/operators';
+import { Counter, ICountDownState } from '../counter';
 
 // EXERCISE DESCRIPTION ==============================
 
@@ -22,46 +22,30 @@ import { Counter, ICountDownState } from './counter';
 // ==================================================================
 
 // == CONSTANTS ===========================================================
-// Setup conutDown state
+// Setup counter state
 const initialCounterState: ICountDownState = {
-  isTicking: false,
   count: 0,
+  countDiff: 1,
   countUp: true,
-  tickSpeed: 200,
-  countDiff: 1
+  isTicking: false,
+  tickSpeed: 200
 };
 
-// Init CountDown counterUI
 const counterUI = new Counter(document.body, {
+  initialCountDiff: initialCounterState.countDiff,
   initialSetTo: initialCounterState.count + 10,
-  initialTickSpeed: initialCounterState.tickSpeed,
-  initialCountDiff: initialCounterState.countDiff
+  initialTickSpeed: initialCounterState.tickSpeed
 });
 
 // = BASE OBSERVABLES  ====================================================
 // == SOURCE OBSERVABLES ==================================================
 // === STATE OBSERVABLES ==================================================
-const counterCommands$ = merge(
-  counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
-  counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
-  counterUI.btnSetTo$.pipe(map(n => ({ count: n }))),
-  counterUI.btnUp$.pipe(mapTo({ countUp: true })),
-  counterUI.btnDown$.pipe(mapTo({ countUp: false })),
-  counterUI.btnReset$.pipe(mapTo({ ...initialCounterState })),
-  counterUI.inputTickSpeed$.pipe(map(n => ({ tickSpeed: n }))),
-  counterUI.inputCountDiff$.pipe(map(n => ({ countDiff: n })))
-);
-
-// !!! REMOVE LATER !!! JUST FOR TESTING
-counterCommands$.subscribe(console.log);
-
 // === INTERACTION OBSERVABLES ============================================
 // == INTERMEDIATE OBSERVABLES ============================================
 // = SIDE EFFECTS =========================================================
 
 // WRONG SOLUTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // Never maintain state by mutating variables outside of streams
-
 let actualCount = initialCounterState.count;
 
 // == UI INPUTS ===========================================================

@@ -1,16 +1,24 @@
-import { merge, NEVER, timer } from 'rxjs';
+import { combineLatest, merge, NEVER, Subject, timer } from 'rxjs';
 import {
+  distinctUntilChanged,
   map,
   mapTo,
+  pluck,
   scan,
   shareReplay,
   startWith,
   switchMap,
-  tap
+  tap,
+  withLatestFrom
 } from 'rxjs/operators';
-import { Counter, ICountDownState, PartialCountDownState } from './counter';
+import {
+  Counter,
+  CounterStateKeys,
+  ICountDownState,
+  PartialCountDownState
+} from '../counter';
 
-// EXERCISE DESCRIPTION ==============================
+// EXERCISE DESCRIPTION ===================================================
 
 /**
  * Use `CounterStateKeys` for property names.
@@ -27,15 +35,15 @@ import { Counter, ICountDownState, PartialCountDownState } from './counter';
  * 8. Take care of rendering execution and other performance optimisations as well as refactoring (+)
  */
 
-// ==================================================================
+// ========================================================================
 
 // == CONSTANTS ===========================================================
 // Setup conutDown state
 const initialCounterState: ICountDownState = {
-  isTicking: false,
   count: 0,
-  countUp: true,
+  isTicking: false,
   tickSpeed: 200,
+  countUp: true,
   countDiff: 1
 };
 
@@ -48,8 +56,12 @@ const counterUI = new Counter(document.body, {
 
 // = BASE OBSERVABLES  ====================================================
 // == SOURCE OBSERVABLES ==================================================
+
+// All our source observables are extracted into Counter class to hide away all the low leven bindings.
+
 // === STATE OBSERVABLES ==================================================
-const counterCommands$ = merge<PartialCountDownState>(
+const programmaticCommandSubject = new Subject<PartialCountDownState>();
+const counterCommands$ = merge(
   counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
   counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
   counterUI.btnSetTo$.pipe(map(n => ({ count: n }))),
@@ -57,7 +69,8 @@ const counterCommands$ = merge<PartialCountDownState>(
   counterUI.btnDown$.pipe(mapTo({ countUp: false })),
   counterUI.btnReset$.pipe(mapTo({ ...initialCounterState })),
   counterUI.inputTickSpeed$.pipe(map(n => ({ tickSpeed: n }))),
-  counterUI.inputCountDiff$.pipe(map(n => ({ countDiff: n })))
+  counterUI.inputCountDiff$.pipe(map(n => ({ countDiff: n }))),
+  programmaticCommandSubject.asObservable()
 );
 
 const counterState$ = counterCommands$.pipe(
@@ -69,44 +82,76 @@ const counterState$ = counterCommands$.pipe(
   shareReplay(1)
 );
 
-// JUST FOR TESTING
-counterState$.subscribe(console.log);
-
 // === INTERACTION OBSERVABLES ============================================
+
 // == INTERMEDIATE OBSERVABLES ============================================
-// = SIDE EFFECTS =========================================================
-
-// WRONG SOLUTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// Never maintain state by mutating variables outside of streams
-
-let actualCount = initialCounterState.count;
-
-// == UI INPUTS ===========================================================
-const renderCountChangeFromTick$ = merge(
-  counterUI.btnStart$.pipe(mapTo(true)),
-  counterUI.btnPause$.pipe(mapTo(false))
-).pipe(
-  switchMap(isTicking =>
-    isTicking ? timer(0, initialCounterState.tickSpeed) : NEVER
-  ),
-  tap(_ => ++actualCount),
-  tap(_ => counterUI.renderCounterValue(actualCount))
+const count$ = counterState$.pipe(
+  pluck(CounterStateKeys.count),
+  distinctUntilChanged()
+);
+const isTicking$ = counterState$.pipe(
+  pluck(CounterStateKeys.isTicking),
+  distinctUntilChanged<boolean>()
+);
+const tickSpeed$ = counterState$.pipe(
+  pluck(CounterStateKeys.tickSpeed),
+  distinctUntilChanged<number>()
+);
+const countDiff$ = counterState$.pipe(
+  pluck(CounterStateKeys.countDiff),
+  distinctUntilChanged<number>()
+);
+const countUp$ = counterState$.pipe(
+  pluck(CounterStateKeys.countUp),
+  distinctUntilChanged()
 );
 
-const renderCountChangeFromSetTo$ = counterUI.btnSetTo$.pipe(
-  tap(n => (actualCount = n)),
-  tap(_ => counterUI.renderCounterValue(actualCount))
+const countInfo$ = combineLatest(count$, countUp$, countDiff$);
+
+const counterUpdateTrigger$ = combineLatest(isTicking$, tickSpeed$).pipe(
+  switchMap(([isTicking, tickSpeed]) =>
+    isTicking ? timer(0, tickSpeed) : NEVER
+  )
+);
+
+// = SIDE EFFECTS =========================================================
+
+// == UI INPUTS ===========================================================
+const renderCountChange$ = count$.pipe(
+  tap(n => counterUI.renderCounterValue(n))
+);
+const renderTickSpeedChange$ = tickSpeed$.pipe(
+  tap(n => counterUI.renderTickSpeedInputValue(n))
+);
+const renderCountDiffChange$ = countDiff$.pipe(
+  tap(n => counterUI.renderCountDiffInputValue(n))
+);
+const renderSetToChange$ = counterUI.btnReset$.pipe(
+  tap(_ => {
+    counterUI.renderSetToInputValue('10');
+  })
 );
 
 // == UI OUTPUTS ==========================================================
+const commandFromTick$ = counterUpdateTrigger$.pipe(
+  withLatestFrom(countInfo$, (_, info) => info),
+  tap(([count, countUp, countDiff]) =>
+    programmaticCommandSubject.next({
+      count: count + countDiff * (countUp ? 1 : -1)
+    })
+  )
+);
 
 // == SUBSCRIPTION ========================================================
 
 merge(
   // Input side effect
-  renderCountChangeFromTick$,
+  renderCountChange$,
+  renderTickSpeedChange$,
+  renderCountDiffChange$,
+  renderSetToChange$,
   // Outputs side effect
-  renderCountChangeFromSetTo$
+  commandFromTick$
 ).subscribe();
 
 // = HELPER ===============================================================

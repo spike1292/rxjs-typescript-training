@@ -1,6 +1,6 @@
-import { merge } from 'rxjs';
-import { mapTo } from 'rxjs/operators';
-import { Counter, ICountDownState } from './counter';
+import { merge, NEVER, timer } from 'rxjs';
+import { mapTo, switchMap } from 'rxjs/operators';
+import { Counter, ICountDownState } from '../counter';
 
 // EXERCISE DESCRIPTION ==============================
 
@@ -38,6 +38,12 @@ const counterUI = new Counter(document.body, {
 });
 
 merge(
-  counterUI.btnStart$.pipe(mapTo(1)),
-  counterUI.btnPause$.pipe(mapTo(0))
-).subscribe(n => counterUI.renderCounterValue(n));
+  counterUI.btnStart$.pipe(mapTo(true)),
+  counterUI.btnPause$.pipe(mapTo(false))
+)
+  .pipe(
+    switchMap(isTicking =>
+      isTicking ? timer(0, initialCounterState.tickSpeed) : NEVER
+    )
+  )
+  .subscribe(s => counterUI.renderCounterValue(s));
