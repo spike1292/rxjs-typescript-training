@@ -11,7 +11,7 @@ Reactive programming, Event Sourcing & CQRS in the frontend
 - [ ] explain files structure with assignments
 - [ ] expand test assignment + example
 - [ ] add marbles diagrams to explain
-- [ ] make index.ts start situation
+- [x] make index.ts start situation
 
 ## Prerequisites
 
