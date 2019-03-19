@@ -55,9 +55,9 @@ The starting scenario changes the counter value to 1 or 0 when you press `start`
 ## 01 - Implement Interval
 
 In order for the counter to actually count, we will need a signal on a fixed interval to update the count. RxJS offers an Observable creation method called `timer` [(docs)](https://rxjs.dev/api/index/function/timer) [(marbles)](https://rxmarbles.com/#timer). The goal in this step is to start a `timer` observable whenever `start` is pressed, and to stop it whenever `pause` is pressed. If you look at the [starting scenario](./src/index.ts) you will see we have an observable that emits when either `start` or `pause` is clicked.
-At the moment it only logs this to the console, use the `switchMap` [(docs)](https://rxjs.dev/api/operators/switchMap) [(marbles)](https://rxmarbles.com/#switchMap) operator to switch to a `timer` observable whenever `start` is clicked, when `pause` is clicked you can use the `NEVER` [(docs)](https://rxjs.dev/api/index/const/NEVER) observable to stop emitting values.
+At the moment it only switches the count between `0` and `1`, use the `switchMap` [(docs)](https://rxjs.dev/api/operators/switchMap) [(marbles)](https://rxmarbles.com/#switchMap) operator to switch to a `timer` observable whenever `start` is clicked, when `pause` is clicked you can use the `NEVER` [(docs)](https://rxjs.dev/api/index/const/NEVER) observable to stop emitting values.
 
-When implemented correctly the start button is clicked the counter will start counting up from `0`, _pause_ will pause the timer at it's current value, and _start_ will restart it from `0`.
+When implemented correctly, when the start button is clicked the counter will start counting up from `0`, _pause_ will pause the timer at it's current value, and _start_ will restart it from `0`.
 
 ## 02 - Maintain Interval State
 
@@ -136,7 +136,7 @@ const count$ = counterState$.pipe(
 
 ### 03-5 - Interval process
 
-Up untill now we have based the interval tick on the start and pause commands. In the previous step we created observables on the individual state properties, and the tick itself can be based on the `isCounting$` and `intervalSpeed$` observables. Use the `merge` method to start, stop and/or update the timer when either property changes. Make this an Observable called `intervalTick$` and place it in INTERMEDIATE OBSERVABLES.
+Up untill now we have based the interval tick on the start and pause commands. In the previous step we created observables on the individual state properties, and the tick itself can be based on the `isCounting$` intermediate observable. Use the `switchmap` method to start and stop the timer when this property changes. Make this an Observable called `intervalTick$` and place it in INTERMEDIATE OBSERVABLES.
 
 When the `intervalTick$` emits, we want to update the `count` state. A good way to do this would be to sends a count update command through the `counterCommands$` observable. An Observable van only be piped or subscribed to, you cannot emit into it directly. In order to be able to this we are going to create a `Subject` [(docs)](https://rxjs.dev/api/index/class/Subject). This is an Observable we can emit values into.
 
@@ -148,6 +148,8 @@ const programmaticCommandSubject = new Subject<PartialCountDownState>();
 
 Create an Observable `intervalProcess$` from `intervalTick$` which calls `programmaticCommandSubject.next({ count: newCount })` with the new count value on every tick. For now increment it by 1 every tick. Add the `intervalProcess$` Observable to the Observable you have subscribed to under the SUBSCRIBE section. The counter should work again now.
 
+The local state variable and observable that updated it via tap can be removed now. It is discouraged to mutate and use state from outside of the observable stream inside of it. The scan solution we just implemented keeps the state internal to the stream.
+
 ## 04 - Reset
 
 The reset button currently resets the state due to the command it emits to the `counterCommands$` stream, but the input values are not currently updated. Under the SIDE EFFECTS - UI INPUTS section implement Observables that set the input values whenever the state values change using the `counterUI.render...InputValue` methods and `tap`. The intermediate observables should help with this.
@@ -155,15 +157,15 @@ The setTo input value is not based on the application state, think of a way to m
 
 ## 05 - Countup
 
-Currently the counter can only count up, the buttons count up and count down already update the state. Use that state information to change the `intervalProcess$` Observable to support counting down, and back up again when those buttons are clicked.
+Currently the counter can only count up, the buttons count up and count down already update the state. Use that state information to change the `intervalProcess$` Observable to support counting down, and back up again when those buttons are clicked. You can use the `withLatestFrom` [(docs)](https://rxjs.dev/api/operators/withLatestFrom) [(marbles)](https://rxmarbles.com/#withLatestFrom) operator to get the latest value from another observable in a pipe.
 
 ## 06 - Dynamic tickspeed
 
-Currently the tickspeed isn't actually updated when the input is changed. Update the `intervalTick$` Observable to use the (intermediate) state to determine to interval speed.
+Currently the tickspeed isn't actually updated when the input is changed. Update the `intervalTick$` Observable to use the (intermediate) state to determine to interval speed. You can use the `combineLatest` [(docs)](https://rxjs.dev/api/index/function/combineLatest) [(marbles)](https://rxmarbles.com/#combineLatest) observable creation method to get the most recent value of those observables when either one emits a value.
 
 ## 07 - Dynamic countDiff
 
-Currently the ammount the count is incremented and decremented is doesn't change when the countDiff input is changed. Alter the `intervalProcess$` Observable to use the state value to determine this.
+Currently the ammount the count is incremented and decremented is doesn't change when the countDiff input is changed. Alter the `intervalProcess$` Observable to use the state value to determine this. Hint: create a new intermediate observable that contains all count data you need in `intervalProcess$`.
 
 ## 08 - Performance optimalisation & refactoring
 
