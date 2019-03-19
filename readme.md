@@ -118,6 +118,12 @@ You can use the following `scan` type signature:
 scan<PartialCountDownState, ICountDownState>
 ```
 
+You can use the following `merge` type signature on `counterCommands$`:
+
+```ts
+merge<PartialCountDownState>
+```
+
 ### 03-4 - Intermediate observables
 
 We now have a `counterState$` Observable, which always gives us the entire state. We want to be able to act on partial state value changes. We can create intermediate Observables from the `counterState$` Obserable, do this for each of the properties on the state. Use the `pluck` [(docs)](https://rxjs.dev/api/operators/pluck) [(marbles)](https://rxmarbles.com/#pluck) operator and the `distinctUntillChanged` [(docs)](https://rxjs.dev/api/operators/distinctUntilChanged) [(marbles)](https://rxmarbles.com/#distinctUntilChanged) operator to do this. Put these under the `INTERMEDIATE OBSERVABLES` section.
