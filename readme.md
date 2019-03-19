@@ -8,7 +8,7 @@ Reactive programming, Event Sourcing & CQRS in the frontend
 
 - [ ] links to operator docs + marble
 - [ ] review henk
-- [ ] explain files structure with assignments
+- [x] explain files structure with assignments
 - [ ] expand test assignment + example
 - [ ] add marbles diagrams to explain
 - [x] make index.ts start situation
@@ -23,8 +23,6 @@ Reactive programming, Event Sourcing & CQRS in the frontend
 - [yarn](https://yarnpkg.com/en/docs/install)
 
 ## Setup
-
-(#setup)
 
 1. `git clone quintorgit@git.quintor.nl:SG-QuintorAcademy/rxjs.git`
 1. `cd rxjs`
