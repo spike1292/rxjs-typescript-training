@@ -24,6 +24,8 @@ Reactive programming, Event Sourcing & CQRS in the frontend
 
 ## Setup
 
+(#setup)
+
 1. `git clone quintorgit@git.quintor.nl:SG-QuintorAcademy/rxjs.git`
 1. `cd rxjs`
 1. `yarn install`
@@ -31,18 +33,22 @@ Reactive programming, Event Sourcing & CQRS in the frontend
 
 Open to [http://localhost:1234](http://localhost:1234) to see your hot reloaded project.
 
-## 00 - Project Structure
+## 00 - Assignment
 
-In the `src` directory there is an `index.ts` and a `count.ts` file. The `counter.ts` file countains a class you will use to implement the counter. The `index.ts` file contains the starting situation, you will expand this file to implement the counter.
+Start the project, see [Setup](#setup), and have a look at the starting situation in the [browser](http://localhost:1234).
 
-Start the project and have a look at the starting situation in the browser. The goal of this project is to implement all of the following functionality.
+In the `src` directory there is an `index.ts` and a `count.ts` file. The `counter.ts` file countains a class you will use to implement the counter view. The `index.ts` file contains the starting situation, you will expand this file to implement the counter.
 
-- Pressing start will make the counter start counting up
-- Pressing pause will pause the counter
-- Set to will set the counter to the given value
-- Reset will reset the counter to it's initial state
-- Count up will cause the counter to count up
-- Count down will cause the counter to count down
+> Every step in the project has an accompanying file in which the implementation is done up untill that point. If you get stuck or need idea's you can always take a look at those files.
+
+The goal of this project is to implement all of the following functionality:
+
+- Pressing _start_ will make the counter start counting up
+- Pressing _pause_ will pause the counter
+- _Set to_ will set the counter to the given value
+- _Reset_ will reset the counter to it's initial state
+- _Count up_ will cause the counter to count up
+- _Count down_ will cause the counter to count down
 - Changing the tickspeed will change the interval of the timer
 - Changing the count diff will change how much the counter changes each tick
 
