@@ -4,15 +4,6 @@ Reactive programming, Event Sourcing & CQRS in the frontend
 
 [Slides](https://slides.com/spike1292/rxjs-typescript-workshop)
 
-## TODO
-
-- [x] links to operator docs + marble
-- [ ] review henk
-- [x] explain files structure with assignments
-- [ ] expand test assignment + example
-- [ ] add marbles diagrams to explain
-- [x] make index.ts start situation
-
 ## Prerequisites
 
 - vscode / webstorm
@@ -212,7 +203,7 @@ from([1, 2, 3, 6])
 
 Move the duplicated code into a custom operator, which takes takes the state key name as property so it can be used with any state key.
 
-## 09 - Unit tests (WIP)
+## 09 - Unit tests
 
 The last step will be to write a number of unit tests for the code you have written. A common way to test RxJS observables is a via the `rxjs-marbles` library. This lets you easily re-create complex observable streams in tests while allowing you to control the timing. You can read about how to use [rxjs-marbles](https://github.com/cartant/rxjs-marbles)
 
