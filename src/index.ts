@@ -1,6 +1,14 @@
-import { merge } from 'rxjs';
-import { mapTo } from 'rxjs/operators';
-import { Counter, ICountDownState } from './counter';
+import { merge, NEVER, timer } from 'rxjs';
+import {
+  map,
+  mapTo,
+  switchMap,
+  tap,
+  startWith,
+  scan,
+  shareReplay
+} from 'rxjs/operators';
+import { Counter, ICountDownState, PartialCountDownState } from './lib/counter';
 
 // EXERCISE DESCRIPTION ==============================
 
@@ -37,7 +45,59 @@ const counterUI = new Counter(document.body, {
   initialTickSpeed: initialCounterState.tickSpeed
 });
 
-merge(
+let currentCount = initialCounterState.count;
+
+// = BASE OBSERVABLES ====================================================
+// == SOURCE OBSERVABLES ==================================================
+// === STATE OBSERVABLES ==================================================
+
+const counterCommands$ = merge<PartialCountDownState>(
+  counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
+  counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
+  counterUI.btnSetTo$.pipe(map(n => ({ count: n }))),
+  counterUI.btnUp$.pipe(mapTo({ countUp: true })),
+  counterUI.btnDown$.pipe(mapTo({ countUp: false })),
+  counterUI.btnReset$.pipe(mapTo({ ...initialCounterState })),
+  counterUI.inputTickSpeed$.pipe(map(n => ({ tickSpeed: n }))),
+  counterUI.inputCountDiff$.pipe(map(n => ({ countDiff: n })))
+);
+
+const counterState$ = counterCommands$.pipe(
+  startWith(initialCounterState),
+  scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
+    ...counterState,
+    ...command
+  })),
+  shareReplay(1)
+);
+
+// === INTERACTION OBSERVABLES ============================================
+// == INTERMEDIATE OBSERVABLES ============================================
+// = SIDE EFFECTS =========================================================
+// == UI INPUTS ===========================================================
+// == UI OUTPUTS ==========================================================
+// == SUBSCRIPTION ========================================================
+// === INPUTs =============================================================
+// === OUTPUTS ============================================================
+// = HELPER ===============================================================
+// = CUSTOM OPERATORS =====================================================
+// == CREATION METHODS ====================================================
+// == OPERATORS ===========================================================
+
+// = SIDE EFFECTS =========================================================
+// == UI INPUTS ===========================================================
+const renderCountChangeFromTick$ = merge(
   counterUI.btnStart$.pipe(mapTo(1)),
   counterUI.btnPause$.pipe(mapTo(0))
-).subscribe(n => counterUI.renderCounterValue(n));
+).pipe(
+  switchMap(n => (n === 1 ? timer(0, initialCounterState.tickSpeed) : NEVER)),
+  tap(_ => (currentCount += 1)),
+  tap(_ => counterUI.renderCounterValue(currentCount))
+);
+
+const renderCountChangeFromSetTo$ = counterUI.btnSetTo$.pipe(
+  tap(n => (currentCount = n)),
+  tap(n => counterUI.renderSetToInputValue(n.toString()))
+);
+
+merge(renderCountChangeFromTick$, renderCountChangeFromSetTo$).subscribe();

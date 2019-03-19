@@ -14,7 +14,7 @@ import {
   CounterStateKeys,
   ICountDownState,
   PartialCountDownState
-} from '../counter';
+} from '../lib/counter';
 
 // EXERCISE DESCRIPTION ==============================
 

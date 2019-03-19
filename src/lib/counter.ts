@@ -7,6 +7,11 @@ import {
   withLatestFrom
 } from 'rxjs/operators';
 
+/**
+ * Don't touch this !!
+ * This is a blackbox.
+ */
+
 export interface ICounterConfig {
   initialSetTo?: number;
   initialTickSpeed?: number;
@@ -60,6 +65,10 @@ enum ElementIds {
   InputCountDiff = 'count-diff-input'
 }
 
+/**
+ * Don't touch this !!
+ * This is a blackbox. 🏴‍☠️
+ */
 export class Counter {
   private initialSetTo: number;
   private initialTickSpeed: number;

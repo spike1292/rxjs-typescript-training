@@ -1,4 +1,4 @@
-## TODO
+# TODO
 
 - [x] links to operator docs + marble
 - [x] review henk
@@ -6,3 +6,7 @@
 - [ ] expand test assignment + example
 - [ ] add marbles diagrams to explain
 - [x] make index.ts start situation
+- [ ] do assignment 1 as live coding
+- [ ] incremental ui (branches)
+- [ ] assignments in branches (information overload)
+- [ ] explain `counter.ts`

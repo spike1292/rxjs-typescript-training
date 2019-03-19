@@ -1,6 +1,6 @@
 import { merge, NEVER, timer } from 'rxjs';
 import { mapTo, switchMap, tap } from 'rxjs/operators';
-import { Counter, ICountDownState } from '../counter';
+import { Counter, ICountDownState } from '../lib/counter';
 
 // EXERCISE DESCRIPTION ==============================
 

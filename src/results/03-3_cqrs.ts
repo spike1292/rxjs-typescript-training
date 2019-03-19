@@ -8,7 +8,11 @@ import {
   switchMap,
   tap
 } from 'rxjs/operators';
-import { Counter, ICountDownState, PartialCountDownState } from '../counter';
+import {
+  Counter,
+  ICountDownState,
+  PartialCountDownState
+} from '../lib/counter';
 
 // EXERCISE DESCRIPTION ==============================
 

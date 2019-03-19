@@ -104,13 +104,15 @@ For now subscribe to this observable and log it to the console.
 
 We now have a stream of state update commands in the `counterCommands$` observable, but we currently aren't doing anything with it. Create a new Observable called `counterState$` from the `counterCommands$` Observable. Add the observable to the `STATE OBSERVABLES` section.
 
+You can use the following `merge` type signature on `counterCommands$`:
+
+```ts
+merge<PartialCountDownState>
+```
+
 The goal is to take the stream of state update commands, and apply them, to our current state, and emit the updated state.
 
 We want to start out with our initialState, the `startWith` [(docs)](https://rxjs.dev/api/operators/startWith) [(marbles)](https://rxmarbles.com/#startWith) operator can be used to emit a inital state. The `scan` operator can be used to merge the state update commands into our current state, `scan` [(docs)](https://rxjs.dev/api/operators/scan) [(marbles)](https://rxmarbles.com/#scan) behaves in the same way as `array.reduce`.
-
-By default most Observabled are _cold_ ❄️, we only want to have one instance of the state being shared to the rest of the application. In order to make the Observable _hot_ 🔥 we can use the `shareReplay` [(docs)](https://rxjs.dev/api/operators/shareReplay) operator, besides making the Observable _hot_ it also always gives the most recent value to new subscribers instead of waiting for the next emission.
-
-Subscribe to this Observable and log the result to the console, all the buttons and inputs should cause an updated state to be logged to the console.
 
 You can use the following `scan` type signature:
 
@@ -118,11 +120,9 @@ You can use the following `scan` type signature:
 scan<PartialCountDownState, ICountDownState>
 ```
 
-You can use the following `merge` type signature on `counterCommands$`:
+By default most Observabled are _cold_ ❄️, we only want to have one instance of the state being shared to the rest of the application. In order to make the Observable _hot_ 🔥 we can use the `shareReplay` [(docs)](https://rxjs.dev/api/operators/shareReplay) operator, besides making the Observable _hot_ it also always gives the most recent value to new subscribers instead of waiting for the next emission.
 
-```ts
-merge<PartialCountDownState>
-```
+Subscribe to this Observable and log the result to the console, all the buttons and inputs should cause an updated state to be logged to the console.
 
 ### 03-4 - Intermediate observables
 
@@ -133,7 +133,7 @@ For example:
 ```ts
 const count$ = counterState$.pipe(
   pluck(CounterStateKeys.count),
-  distinctUntillChanged()
+  distinctUntilChanged()
 );
 ```
 
