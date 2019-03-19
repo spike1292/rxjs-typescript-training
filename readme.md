@@ -6,7 +6,7 @@ Reactive programming, Event Sourcing & CQRS in the frontend
 
 ## TODO
 
-- [ ] links to operator docs + marble
+- [x] links to operator docs + marble
 - [ ] review henk
 - [x] explain files structure with assignments
 - [ ] expand test assignment + example
@@ -54,14 +54,14 @@ The starting scenario changes the counter value to 1 or 0 when you press `start`
 
 ## 01 - Implement Interval
 
-In order for the counter to actually count, we will need a signal on a fixed interval to update the count. RxJS offers an Observable creation method called `timer`. The goal in this step is to start a `timer` observable whenever `start` is pressed, and to stop it whenever `pause` is pressed. If you look at the [starting scenario](./src/index.ts) you will see there is an observable that emits when either `start` or `pause` is clicked.
-At the moment it only logs this to the console, use the `switchMap` operator to switch to a `timer` observable whenever `start` is clicked, when `pause` is clicked you can use the `NEVER` observable to stop emitting values.
+In order for the counter to actually count, we will need a signal on a fixed interval to update the count. RxJS offers an Observable creation method called `timer` [(docs)](https://rxjs.dev/api/index/function/timer) [(marbles)](https://rxmarbles.com/#timer). The goal in this step is to start a `timer` observable whenever `start` is pressed, and to stop it whenever `pause` is pressed. If you look at the [starting scenario](./src/index.ts) you will see we have an observable that emits when either `start` or `pause` is clicked.
+At the moment it only logs this to the console, use the `switchMap` [(docs)](https://rxjs.dev/api/operators/switchMap) [(marbles)](https://rxmarbles.com/#switchMap) operator to switch to a `timer` observable whenever `start` is clicked, when `pause` is clicked you can use the `NEVER` [(docs)](https://rxjs.dev/api/index/const/NEVER) observable to stop emitting values.
 
 When implemented correctly the start button is clicked the counter will start counting up from `0`, _pause_ will pause the timer at it's current value, and _start_ will restart it from `0`.
 
 ## 02 - Maintain Interval State
 
-Currently the timer resets when it's restarted after a pause, this is ofcourse not the desired functionality. After `switchMap`, use the `tap` operator to update a local variable which keeps track of the count state. Keep in mind we are not interested in the values that are emitted by the `timer` observable, but only use it to register ticks so we can update our state.
+Currently the timer resets when it's restarted after a pause, this is ofcourse not the desired functionality. After `switchMap`, use the `tap` [(docs)](https://rxjs.dev/api/operators/tap) operator to update a local variable which keeps track of the count state. Keep in mind we are not interested in the values that are emitted by the `timer` observable, but only use it to register ticks so we can update our state.
 
 After this step the counter should start counting up when you press `start`, pause on the current value when your click `pause`, and continue counting up after clicking `start` again.
 
@@ -95,21 +95,21 @@ This is the structure we will be using.
 - Remove subscribe from the current observable and assign it to the variable `renderCountChangeFromTick$`
 - Create an Observable `renderCountChangeFromSetTo$` that uses `counterUI.btnSetTo$` to update the count state and call `counterUI.renderCounterValue` to update the count value on screen. You can use the `tap` operator to accomplish this.
 - Both of these observables should be put under SIDE EFFECTS - UI INPUTS.
-- Use the `merge` operator on both of these observables, and subscribe to it. This way we only have to keep track of a single subscription. This should be placed under SUBSCRIPTION.
+- Use the `merge` [(docs)](https://rxjs.dev/api/operators/merge) [(marbles)](https://rxmarbles.com/#merge) operator on both of these observables, and subscribe to it. This way we only have to keep track of a single subscription. This should be placed under SUBSCRIPTION.
 
 The counter should still be working as before and the `Set To` button should update the count to the value in the input field next to it.
 
 ### 03-2 - Event Sourcing
 
-In this step we will create an observable which combines all the events in the application and maps them to state update commands. Using the `merge` operator create an Observable `counterCommands$` the combines all the click and change observables from `counterUI` (btnStart$, btnPause$ etc.) and maps them to state update commands. You can use the `map` and `mapTo` operators to do this.
+In this step we will create an observable which combines all the events in the application and maps them to state update commands. Using the `merge` operator create an Observable `counterCommands$` the combines all the click and change observables from `counterUI` (btnStart$, btnPause$ etc.) and maps them to state update commands. You can use the `map` [(docs)](https://rxjs.dev/api/operators/map) [(marbles)](https://rxmarbles.com/#map) and `mapTo` [(docs)](https://rxjs.dev/api/operators/mapTo) [(marbles)](https://rxmarbles.com/#mapTo) operators to do this.
 The valid update commands are defined in the `PartialCounterState` type exported by `counter.ts`.
 
 For now subscribe to this observable and log it to the console.
 
 ### 03-3 - CQRS
 
-We now have a stream of state update commands in the `counterCommands$` observable, but we currently aren't doing anything with it. Create a new Observable called `counterState$` from the `counterCommands$` Observable. Our goal is to take the stream of state update commands, and apply them, to our current state, and emit the updated state. We want to start out with our initialState, the `startWith` operator can be used for this. The `scan` operator can be used to merge the state update commands into our current state, `scan` works in the same way as `array.reduce`.
-By default most Observabled are cold, we only want to have one instance of the state being shared to the rest of the application. In order to make the Observable hot we can use the `shareReplay` Operator, besides making the Observable hot it also always gives the last value to new subscribers instead of waiting for the next emission.
+We now have a stream of state update commands in the `counterCommands$` observable, but we currently aren't doing anything with it. Create a new Observable called `counterState$` from the `counterCommands$` Observable. Our goal is to take the stream of state update commands, and apply them, to our current state, and emit the updated state. We want to start out with our initialState, the `startWith` [(docs)](https://rxjs.dev/api/operators/startWith) [(marbles)](https://rxmarbles.com/#startWith) operator can be used for this. The `scan` operator can be used to merge the state update commands into our current state, `scan` [(docs)](https://rxjs.dev/api/operators/scan) [(marbles)](https://rxmarbles.com/#scan) works in the same way as `array.reduce`.
+By default most Observabled are cold, we only want to have one instance of the state being shared to the rest of the application. In order to make the Observable hot we can use the `shareReplay` [(docs)](https://rxjs.dev/api/operators/shareReplay) Operator, besides making the Observable hot it also always gives the last value to new subscribers instead of waiting for the next emission.
 Subscribe to this Observable and log the result to the console, all the buttons and inputs should cause an updated state to be logged to the console.
 
 ```ts
@@ -125,7 +125,7 @@ const counterState$ = counterCommands$.pipe(
 
 ### 03-4 - Intermediate observables
 
-We now have a `counterState$` Observable, which always gives us the entire state. We want to be able to act on single state value changes, only when that specific value changes. We can create intermediate Observables from the `counterState$` Obserable, do this for each of the properties on the state. Use the `pluck` operator and the `distinctUntillChanged` operator to do this. Put these under the INTERMEDIATE OBSERVABLES section.
+We now have a `counterState$` Observable, which always gives us the entire state. We want to be able to act on single state value changes, only when that specific value changes. We can create intermediate Observables from the `counterState$` Obserable, do this for each of the properties on the state. Use the `pluck` [(docs)](https://rxjs.dev/api/operators/pluck) [(marbles)](https://rxmarbles.com/#pluck) operator and the `distinctUntillChanged` [(docs)](https://rxjs.dev/api/operators/distinctUntilChanged) [(marbles)](https://rxmarbles.com/#distinctUntilChanged) operator to do this. Put these under the INTERMEDIATE OBSERVABLES section.
 
 ```ts
 const count$ = counterState$.pipe(
@@ -138,7 +138,7 @@ const count$ = counterState$.pipe(
 
 Up untill now we have based the interval tick on the start and pause commands. In the previous step we created observables on the individual state properties, and the tick itself can be based on the `isCounting$` and `intervalSpeed$` observables. Use the `merge` method to start, stop and/or update the timer when either property changes. Make this an Observable called `intervalTick$` and place it in INTERMEDIATE OBSERVABLES.
 
-When the `intervalTick$` emits, we want to update the `count` state. A good way to do this would be to sends a count update command through the `counterCommands$` observable. An Observable van only be piped or subscribed to, you cannot emit into it directly. In order to be able to this we are going to create a `Subject`. This is an Observable we can emit values into.
+When the `intervalTick$` emits, we want to update the `count` state. A good way to do this would be to sends a count update command through the `counterCommands$` observable. An Observable van only be piped or subscribed to, you cannot emit into it directly. In order to be able to this we are going to create a `Subject` [(docs)](https://rxjs.dev/api/index/class/Subject). This is an Observable we can emit values into.
 
 Create a Subject `programmaticCommandSubject` and add this to the `counterCommands$` Observable. Now once you call programmaticCommandSubject.next(value), `counterCommands$` will emit the value which will update the state.
 
