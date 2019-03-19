@@ -28,7 +28,7 @@ Start the project, see [Setup](#setup), and have a look at the starting situatio
 
 In the `src` directory there is an `index.ts` and a `count.ts` file. The `counter.ts` file countains a class you will use to implement the counter view. The `index.ts` file contains the starting situation, you will expand this file to implement the counter.
 
-> Every step in the project has an accompanying file in which a possible result of that step is provided. If you get stuck or need idea's you can always take a look at those files.
+> Every step in the project has an accompanying file in the results directory in which a possible result of that step is provided. If you get stuck or need idea's you can always take a look at those files.
 
 The goal of this project is to implement all of the following functionality:
 
@@ -201,7 +201,7 @@ from([1, 2, 3, 6])
   .subscribe(console.log); // logs 6
 ```
 
-Move the duplicated code into a custom operator, which takes takes the state key name as property so it can be used with any state key.
+Move the duplicated code into a custom operator, which takes the state key name as property so it can be used with any state key.
 
 ## 09 - Unit tests
 
