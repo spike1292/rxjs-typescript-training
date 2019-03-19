@@ -54,10 +54,10 @@ The starting scenario changes the counter value to 1 or 0 when you press `start`
 
 ## 01 - Implement Interval
 
-In order for the counter to actually count, we will need a signal on a fixed interval to update the count. RxJS offers an Observable creation method called `timer`. The goal in this step is to start a `timer` observable whenever `start` is pressed, and to stop it whenever `pause` is pressed. If you look at the starting scenario you will see we have an observable that emits when either `start` or `pause` is clicked.
+In order for the counter to actually count, we will need a signal on a fixed interval to update the count. RxJS offers an Observable creation method called `timer`. The goal in this step is to start a `timer` observable whenever `start` is pressed, and to stop it whenever `pause` is pressed. If you look at the [starting scenario](./src/index.ts) you will see there is an observable that emits when either `start` or `pause` is clicked.
 At the moment it only logs this to the console, use the `switchMap` operator to switch to a `timer` observable whenever `start` is clicked, when `pause` is clicked you can use the `NEVER` observable to stop emitting values.
 
-When implemented correctly when you press start the counter will start counting up from 0, pause will pause the timer at it's current value, and start will restart it from 0.
+When implemented correctly the start button is clicked the counter will start counting up from `0`, _pause_ will pause the timer at it's current value, and _start_ will restart it from `0`.
 
 ## 02 - Maintain Interval State
 
