@@ -37,7 +37,7 @@ Start the project, see [Setup](#setup), and have a look at the starting situatio
 
 In the `src` directory there is an `index.ts` and a `count.ts` file. The `counter.ts` file countains a class you will use to implement the counter view. The `index.ts` file contains the starting situation, you will expand this file to implement the counter.
 
-> Every step in the project has an accompanying file in which the implementation is done up untill that point. If you get stuck or need idea's you can always take a look at those files.
+> Every step in the project has an accompanying file in which a possible result of that step is provided. If you get stuck or need idea's you can always take a look at those files.
 
 The goal of this project is to implement all of the following functionality:
 
@@ -57,7 +57,7 @@ The starting scenario changes the counter value to 1 or 0 when you press `start`
 In order for the counter to actually count, we will need a signal on a fixed interval to update the count. RxJS offers an Observable creation method called `timer` [(docs)](https://rxjs.dev/api/index/function/timer) [(marbles)](https://rxmarbles.com/#timer). The goal in this step is to start a `timer` observable whenever `start` is pressed, and to stop it whenever `pause` is pressed. If you look at the [starting scenario](./src/index.ts) you will see we have an observable that emits when either `start` or `pause` is clicked.
 At the moment it only logs this to the console, use the `switchMap` [(docs)](https://rxjs.dev/api/operators/switchMap) [(marbles)](https://rxmarbles.com/#switchMap) operator to switch to a `timer` observable whenever `start` is clicked, when `pause` is clicked you can use the `NEVER` [(docs)](https://rxjs.dev/api/index/const/NEVER) observable to stop emitting values.
 
-When implemented correctly the start button is clicked the counter will start counting up from `0`, _pause_ will pause the timer at it's current value, and _start_ will restart it from `0`.
+When implemented correctly when the start button is clicked the counter should start counting up from `0`, _pause_ will pause the timer at its current value, and _start_ will restart it from `0`.
 
 ## 02 - Maintain Interval State
 

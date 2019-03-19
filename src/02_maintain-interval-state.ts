@@ -1,5 +1,5 @@
 import { merge, NEVER, timer } from 'rxjs';
-import { mapTo, scan, switchMap } from 'rxjs/operators';
+import { mapTo, switchMap, tap } from 'rxjs/operators';
 import { Counter, ICountDownState } from './counter';
 
 // EXERCISE DESCRIPTION ==============================
@@ -37,6 +37,8 @@ const counterUI = new Counter(document.body, {
   initialTickSpeed: initialCounterState.tickSpeed
 });
 
+let actualCount = initialCounterState.count;
+
 merge(
   counterUI.btnStart$.pipe(mapTo(true)),
   counterUI.btnPause$.pipe(mapTo(false))
@@ -45,6 +47,6 @@ merge(
     switchMap(isTicking =>
       isTicking ? timer(0, initialCounterState.tickSpeed) : NEVER
     ),
-    scan((count, _) => ++count)
+    tap(_ => ++actualCount)
   )
-  .subscribe(s => counterUI.renderCounterValue(s));
+  .subscribe(_ => counterUI.renderCounterValue(actualCount));
