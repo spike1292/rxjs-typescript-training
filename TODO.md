@@ -11,3 +11,7 @@
 - [ ] assignments in branches (information overload)
 - [ ] explain `counter.ts`
 - [ ] meer tijd voor interactieve vragen of voorkauwen
+- [ ] tijdens opdrachten momenten inlassen om theorie uit te leggen
+  - aangeven dat we na opdracht 2 de verkeerde implementatie gaan uitleggen
+  - theorie hot/cold uitleggen, mogelijk extra toelichting in opdracht
+- [ ] opdracht 3-5 opsplitsen
