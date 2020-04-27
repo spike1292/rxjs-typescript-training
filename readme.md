@@ -326,8 +326,10 @@ Move the duplicated code into a custom operator, which takes the state key name 
 
 ## 09 - Unit tests
 
+Start: `git checkout 09_unit-tests`
+
 The last step will be to write a number of unit tests for the code you have written. A common way to test RxJS observables is a via the `rxjs-marbles` library. This lets you easily re-create complex observable streams in tests while allowing you to control the timing. You can read about how to use [rxjs-marbles](https://github.com/cartant/rxjs-marbles)
 
 Create an `index.spec.ts` file, and write a test that verifies that the `counterState$` observable emits a value when `next` is called on `programmaticCommandSubject`. You can run the test suite by running `npm test`.
 
-> Result: `git checkout 09_unit-tests`
+> Result: `git checkout master`
