@@ -2,11 +2,11 @@ import { merge, NEVER, timer } from 'rxjs';
 import {
   map,
   mapTo,
-  switchMap,
-  tap,
-  startWith,
   scan,
   shareReplay,
+  startWith,
+  switchMap,
+  tap,
 } from 'rxjs/operators';
 import { Counter, ICountDownState, PartialCountDownState } from './lib/counter';
 
