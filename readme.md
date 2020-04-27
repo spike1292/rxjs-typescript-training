@@ -1,12 +1,12 @@
-# RxJS Typescript Workshop
+# RxJS Typescript training
 
 Reactive programming, Event Sourcing & CQRS in the frontend
 
-[Slides](https://slides.com/spike1292/rxjs-typescript-workshop)
+[Slides](https://slides.com/spike1292/rxjs-typescript-training/fullscreen)
 
 ## Table of Contents <!-- omit in toc -->
 
-- [RxJS Typescript Workshop](#rxjs-typescript-workshop)
+- [RxJS Typescript training](#rxjs-typescript-training)
   - [Prerequisites](#prerequisites)
   - [Setup](#setup)
   - [00 - Assignment](#00---assignment)

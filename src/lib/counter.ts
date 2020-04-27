@@ -11,7 +11,7 @@ import {
 /**
  * Don't touch this !!
  * This is a blackbox.
- * At the end of the workshop we will explain how this is working
+ * At the end of the training we will explain how this is working
  */
 
 export interface ICounterConfig {
