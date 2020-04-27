@@ -85,7 +85,7 @@ const count$ = counterState$.pipe(
 );
 const isTicking$ = counterState$.pipe(
   pluck(CounterStateKeys.isTicking),
-  distinctUntilChanged<boolean>()
+  distinctUntilChanged()
 );
 
 // = SIDE EFFECTS =========================================================

@@ -91,15 +91,15 @@ const count$ = counterState$.pipe(
 );
 const isTicking$ = counterState$.pipe(
   pluck(CounterStateKeys.isTicking),
-  distinctUntilChanged<boolean>()
+  distinctUntilChanged()
 );
 const tickSpeed$ = counterState$.pipe(
   pluck(CounterStateKeys.tickSpeed),
-  distinctUntilChanged<number>()
+  distinctUntilChanged()
 );
 const countDiff$ = counterState$.pipe(
   pluck(CounterStateKeys.countDiff),
-  distinctUntilChanged<number>()
+  distinctUntilChanged()
 );
 const countUp$ = counterState$.pipe(
   pluck(CounterStateKeys.countUp),

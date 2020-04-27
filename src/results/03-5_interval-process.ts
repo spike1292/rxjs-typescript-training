@@ -61,6 +61,7 @@ const counterUI = new Counter(document.body, {
 
 // === STATE OBSERVABLES ==================================================
 const programmaticCommandSubject = new Subject<PartialCountDownState>();
+
 const counterCommands$ = merge(
   counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
   counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
@@ -90,7 +91,7 @@ const count$ = counterState$.pipe(
 );
 const isTicking$ = counterState$.pipe(
   pluck(CounterStateKeys.isTicking),
-  distinctUntilChanged<boolean>()
+  distinctUntilChanged()
 );
 
 const intervalTick$ = isTicking$.pipe(
