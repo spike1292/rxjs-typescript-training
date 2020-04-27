@@ -9,13 +9,13 @@ import {
   startWith,
   switchMap,
   tap,
-  withLatestFrom
+  withLatestFrom,
 } from 'rxjs/operators';
 import {
   Counter,
   CounterStateKeys,
   ICountDownState,
-  PartialCountDownState
+  PartialCountDownState,
 } from '../lib/counter';
 
 // EXERCISE DESCRIPTION ===================================================
@@ -44,14 +44,14 @@ const initialCounterState: ICountDownState = {
   isTicking: false,
   tickSpeed: 200,
   countUp: true,
-  countDiff: 1
+  countDiff: 1,
 };
 
 // Init CountDown counterUI
 const counterUI = new Counter(document.body, {
   initialSetTo: initialCounterState.count + 10,
   initialTickSpeed: initialCounterState.tickSpeed,
-  initialCountDiff: initialCounterState.countDiff
+  initialCountDiff: initialCounterState.countDiff,
 });
 
 // = BASE OBSERVABLES  ====================================================
@@ -62,12 +62,12 @@ const programmaticCommandSubject = new Subject<PartialCountDownState>();
 const counterCommands$ = merge(
   counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
   counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
-  counterUI.btnSetTo$.pipe(map(n => ({ count: n }))),
+  counterUI.btnSetTo$.pipe(map((n) => ({ count: n }))),
   counterUI.btnUp$.pipe(mapTo({ countUp: true })),
   counterUI.btnDown$.pipe(mapTo({ countUp: false })),
   counterUI.btnReset$.pipe(mapTo({ ...initialCounterState })),
-  counterUI.inputTickSpeed$.pipe(map(n => ({ tickSpeed: n }))),
-  counterUI.inputCountDiff$.pipe(map(n => ({ countDiff: n }))),
+  counterUI.inputTickSpeed$.pipe(map((n) => ({ tickSpeed: n }))),
+  counterUI.inputCountDiff$.pipe(map((n) => ({ countDiff: n }))),
   programmaticCommandSubject.asObservable()
 );
 
@@ -75,7 +75,7 @@ const counterState$ = counterCommands$.pipe(
   startWith(initialCounterState),
   scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
     ...counterState,
-    ...command
+    ...command,
   })),
   shareReplay(1)
 );
@@ -100,16 +100,16 @@ const counterUpdateTrigger$ = combineLatest(isTicking$, tickSpeed$).pipe(
 
 // == UI INPUTS ===========================================================
 const renderCountChange$ = count$.pipe(
-  tap(n => counterUI.renderCounterValue(n))
+  tap((n) => counterUI.renderCounterValue(n))
 );
 const renderTickSpeedChange$ = tickSpeed$.pipe(
-  tap(n => counterUI.renderTickSpeedInputValue(n))
+  tap((n) => counterUI.renderTickSpeedInputValue(n))
 );
 const renderCountDiffChange$ = countDiff$.pipe(
-  tap(n => counterUI.renderCountDiffInputValue(n))
+  tap((n) => counterUI.renderCountDiffInputValue(n))
 );
 const renderSetToChange$ = counterUI.btnReset$.pipe(
-  tap(_ => {
+  tap((_) => {
     counterUI.renderSetToInputValue('10');
   })
 );
@@ -119,7 +119,7 @@ const commandFromTick$ = counterUpdateTrigger$.pipe(
   withLatestFrom(countInfo$, (_, info) => info),
   tap(([count, countUp, countDiff]) =>
     programmaticCommandSubject.next({
-      count: count + countDiff * (countUp ? 1 : -1)
+      count: count + countDiff * (countUp ? 1 : -1),
     })
   )
 );
@@ -142,8 +142,5 @@ merge(
 // == OPERATORS ===========================================================
 function queryChange<T, K extends keyof T>(key: K) {
   return (source: Observable<T>): Observable<T[K]> =>
-    source.pipe(
-      pluck(key),
-      distinctUntilChanged()
-    );
+    source.pipe(pluck(key), distinctUntilChanged());
 }

@@ -4,7 +4,7 @@ import {
   mapTo,
   shareReplay,
   startWith,
-  withLatestFrom
+  withLatestFrom,
 } from 'rxjs/operators';
 
 /**
@@ -38,7 +38,7 @@ export enum CounterStateKeys {
   count = 'count',
   countUp = 'countUp',
   tickSpeed = 'tickSpeed',
-  countDiff = 'countDiff'
+  countDiff = 'countDiff',
 }
 
 export enum ActionNames {
@@ -49,7 +49,7 @@ export enum ActionNames {
   Down,
   Up,
   TickSpeed,
-  CountDiff
+  CountDiff,
 }
 
 enum ElementIds {
@@ -62,7 +62,7 @@ enum ElementIds {
   BtnSetTo = 'btn-set-to',
   InputSetTo = 'set-to-input',
   InputTickSpeed = 'tick-speed-input',
-  InputCountDiff = 'count-diff-input'
+  InputCountDiff = 'count-diff-input',
 }
 
 /**
@@ -100,9 +100,7 @@ export class Counter {
     <button type="button" id="${ElementIds.BtnSetTo}">
       Set To
     </button>
-    <input id="${
-      ElementIds.InputSetTo
-    }" style="width:40px" type="number" min=0 value="${this.initialSetTo}"/>
+    <input id="${ElementIds.InputSetTo}" style="width:40px" type="number" min=0 value="${this.initialSetTo}"/>
     <!-- I'm sorry for this, but I was lazy.. :) -->
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
@@ -125,18 +123,14 @@ export class Counter {
     <label>
       Tick Speed
     </label>
-    <input id="${
-      ElementIds.InputTickSpeed
-    }" style="width:60px" type="number" min=0 value="${this.initialTickSpeed}"/>
+    <input id="${ElementIds.InputTickSpeed}" style="width:60px" type="number" min=0 value="${this.initialTickSpeed}"/>
 <!-- I'm sorry for this, but I was lazy.. :) -->
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
     <label>
       Count Diff
     </label>
-    <input id="${
-      ElementIds.InputCountDiff
-    }" style="width:60px" type="number" min=0 value="${this.initialCountDiff}"/>
+    <input id="${ElementIds.InputCountDiff}" style="width:60px" type="number" min=0 value="${this.initialCountDiff}"/>
     `;
 
   private display: HTMLParagraphElement;
@@ -284,8 +278,8 @@ function getValueObservable(
     throw new Error(`${elemId} not found`);
   }
   return fromEvent(elem, eventName).pipe(
-    map(v => (v.target as HTMLInputElement).value),
-    map(v => parseInt(v, 10)),
+    map((v) => (v.target as HTMLInputElement).value),
+    map((v) => parseInt(v, 10)),
     shareReplay(1)
   );
 }

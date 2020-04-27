@@ -2,13 +2,13 @@ import { marbles } from 'rxjs-marbles/jest';
 import {
   counterState$,
   initialCounterState,
-  programmaticCommandSubject
+  programmaticCommandSubject,
 } from './09-1_export-observables';
 
 describe('rxjs-marbles', () => {
   it(
     'Should emit the next state after programmaticCommandSubject emits',
-    marbles(m => {
+    marbles((m) => {
       const stateUpdate = { count: 50 };
       const expectedState = { ...initialCounterState, ...stateUpdate };
 

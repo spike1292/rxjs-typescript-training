@@ -6,12 +6,12 @@ import {
   shareReplay,
   startWith,
   switchMap,
-  tap
+  tap,
 } from 'rxjs/operators';
 import {
   Counter,
   ICountDownState,
-  PartialCountDownState
+  PartialCountDownState,
 } from '../lib/counter';
 
 // EXERCISE DESCRIPTION ==============================
@@ -40,14 +40,14 @@ const initialCounterState: ICountDownState = {
   count: 0,
   countUp: true,
   tickSpeed: 200,
-  countDiff: 1
+  countDiff: 1,
 };
 
 // Init CountDown counterUI
 const counterUI = new Counter(document.body, {
   initialSetTo: initialCounterState.count + 10,
   initialTickSpeed: initialCounterState.tickSpeed,
-  initialCountDiff: initialCounterState.countDiff
+  initialCountDiff: initialCounterState.countDiff,
 });
 
 // = BASE OBSERVABLES  ====================================================
@@ -56,19 +56,19 @@ const counterUI = new Counter(document.body, {
 const counterCommands$ = merge<PartialCountDownState>(
   counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
   counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
-  counterUI.btnSetTo$.pipe(map(n => ({ count: n }))),
+  counterUI.btnSetTo$.pipe(map((n) => ({ count: n }))),
   counterUI.btnUp$.pipe(mapTo({ countUp: true })),
   counterUI.btnDown$.pipe(mapTo({ countUp: false })),
   counterUI.btnReset$.pipe(mapTo({ ...initialCounterState })),
-  counterUI.inputTickSpeed$.pipe(map(n => ({ tickSpeed: n }))),
-  counterUI.inputCountDiff$.pipe(map(n => ({ countDiff: n })))
+  counterUI.inputTickSpeed$.pipe(map((n) => ({ tickSpeed: n }))),
+  counterUI.inputCountDiff$.pipe(map((n) => ({ countDiff: n })))
 );
 
 const counterState$ = counterCommands$.pipe(
   startWith(initialCounterState),
   scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
     ...counterState,
-    ...command
+    ...command,
   })),
   shareReplay(1)
 );
@@ -90,16 +90,16 @@ const renderCountChangeFromTick$ = merge(
   counterUI.btnStart$.pipe(mapTo(true)),
   counterUI.btnPause$.pipe(mapTo(false))
 ).pipe(
-  switchMap(isTicking =>
+  switchMap((isTicking) =>
     isTicking ? timer(0, initialCounterState.tickSpeed) : NEVER
   ),
-  tap(_ => ++actualCount),
-  tap(_ => counterUI.renderCounterValue(actualCount))
+  tap((_) => ++actualCount),
+  tap((_) => counterUI.renderCounterValue(actualCount))
 );
 
 const renderCountChangeFromSetTo$ = counterUI.btnSetTo$.pipe(
-  tap(n => (actualCount = n)),
-  tap(_ => counterUI.renderCounterValue(actualCount))
+  tap((n) => (actualCount = n)),
+  tap((_) => counterUI.renderCounterValue(actualCount))
 );
 
 // == UI OUTPUTS ==========================================================

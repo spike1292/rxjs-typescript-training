@@ -9,13 +9,13 @@ import {
   startWith,
   switchMap,
   tap,
-  withLatestFrom
+  withLatestFrom,
 } from 'rxjs/operators';
 import {
   Counter,
   CounterStateKeys,
   ICountDownState,
-  PartialCountDownState
+  PartialCountDownState,
 } from '../lib/counter';
 
 // EXERCISE DESCRIPTION ==============================
@@ -44,14 +44,14 @@ const initialCounterState: ICountDownState = {
   count: 0,
   countUp: true,
   tickSpeed: 200,
-  countDiff: 1
+  countDiff: 1,
 };
 
 // Init CountDown counterUI
 const counterUI = new Counter(document.body, {
   initialSetTo: initialCounterState.count + 10,
   initialTickSpeed: initialCounterState.tickSpeed,
-  initialCountDiff: initialCounterState.countDiff
+  initialCountDiff: initialCounterState.countDiff,
 });
 
 // = BASE OBSERVABLES  ====================================================
@@ -64,12 +64,12 @@ const programmaticCommandSubject = new Subject<PartialCountDownState>();
 const counterCommands$ = merge(
   counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
   counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
-  counterUI.btnSetTo$.pipe(map(n => ({ count: n }))),
+  counterUI.btnSetTo$.pipe(map((n) => ({ count: n }))),
   counterUI.btnUp$.pipe(mapTo({ countUp: true })),
   counterUI.btnDown$.pipe(mapTo({ countUp: false })),
   counterUI.btnReset$.pipe(mapTo({ ...initialCounterState })),
-  counterUI.inputTickSpeed$.pipe(map(n => ({ tickSpeed: n }))),
-  counterUI.inputCountDiff$.pipe(map(n => ({ countDiff: n }))),
+  counterUI.inputTickSpeed$.pipe(map((n) => ({ tickSpeed: n }))),
+  counterUI.inputCountDiff$.pipe(map((n) => ({ countDiff: n }))),
   programmaticCommandSubject.asObservable()
 );
 
@@ -77,7 +77,7 @@ const counterState$: Observable<ICountDownState> = counterCommands$.pipe(
   startWith(initialCounterState),
   scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
     ...counterState,
-    ...command
+    ...command,
   })),
   shareReplay(1)
 );
@@ -94,7 +94,7 @@ const isTicking$ = counterState$.pipe(
 );
 
 const intervalTick$ = isTicking$.pipe(
-  switchMap(isTicking =>
+  switchMap((isTicking) =>
     isTicking ? timer(0, initialCounterState.tickSpeed) : NEVER
   )
 );
@@ -102,13 +102,13 @@ const intervalTick$ = isTicking$.pipe(
 // = SIDE EFFECTS =========================================================
 // == UI INPUTS ===========================================================
 const renderCountChange$ = count$.pipe(
-  tap(n => counterUI.renderCounterValue(n))
+  tap((n) => counterUI.renderCounterValue(n))
 );
 
 // == UI OUTPUTS ==========================================================
 const commandFromTick$ = intervalTick$.pipe(
   withLatestFrom(count$, (_, count) => count),
-  tap(count => programmaticCommandSubject.next({ count: ++count }))
+  tap((count) => programmaticCommandSubject.next({ count: ++count }))
 );
 
 // == SUBSCRIPTION ========================================================

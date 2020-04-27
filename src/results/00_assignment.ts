@@ -28,16 +28,16 @@ const initialCounterState: ICountDownState = {
   countDiff: 1,
   countUp: true,
   isTicking: false,
-  tickSpeed: 200
+  tickSpeed: 200,
 };
 
 const counterUI = new Counter(document.body, {
   initialCountDiff: initialCounterState.countDiff,
   initialSetTo: initialCounterState.count + 10,
-  initialTickSpeed: initialCounterState.tickSpeed
+  initialTickSpeed: initialCounterState.tickSpeed,
 });
 
 merge(
   counterUI.btnStart$.pipe(mapTo(1)),
   counterUI.btnPause$.pipe(mapTo(0))
-).subscribe(n => counterUI.renderCounterValue(n));
+).subscribe((n) => counterUI.renderCounterValue(n));

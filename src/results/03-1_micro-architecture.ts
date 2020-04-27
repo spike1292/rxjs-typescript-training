@@ -28,13 +28,13 @@ const initialCounterState: ICountDownState = {
   countDiff: 1,
   countUp: true,
   isTicking: false,
-  tickSpeed: 200
+  tickSpeed: 200,
 };
 
 const counterUI = new Counter(document.body, {
   initialCountDiff: initialCounterState.countDiff,
   initialSetTo: initialCounterState.count + 10,
-  initialTickSpeed: initialCounterState.tickSpeed
+  initialTickSpeed: initialCounterState.tickSpeed,
 });
 
 // = BASE OBSERVABLES  ====================================================
@@ -53,16 +53,16 @@ const renderCountChangeFromTick$ = merge(
   counterUI.btnStart$.pipe(mapTo(true)),
   counterUI.btnPause$.pipe(mapTo(false))
 ).pipe(
-  switchMap(isTicking =>
+  switchMap((isTicking) =>
     isTicking ? timer(0, initialCounterState.tickSpeed) : NEVER
   ),
-  tap(_ => ++actualCount),
-  tap(_ => counterUI.renderCounterValue(actualCount))
+  tap((_) => ++actualCount),
+  tap((_) => counterUI.renderCounterValue(actualCount))
 );
 
 const renderCountChangeFromSetTo$ = counterUI.btnSetTo$.pipe(
-  tap(n => (actualCount = n)),
-  tap(_ => counterUI.renderCounterValue(actualCount))
+  tap((n) => (actualCount = n)),
+  tap((_) => counterUI.renderCounterValue(actualCount))
 );
 
 // == UI OUTPUTS ==========================================================

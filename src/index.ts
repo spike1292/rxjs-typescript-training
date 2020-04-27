@@ -6,7 +6,7 @@ import {
   tap,
   startWith,
   scan,
-  shareReplay
+  shareReplay,
 } from 'rxjs/operators';
 import { Counter, ICountDownState, PartialCountDownState } from './lib/counter';
 
@@ -36,13 +36,13 @@ const initialCounterState: ICountDownState = {
   countDiff: 1,
   countUp: true,
   isTicking: false,
-  tickSpeed: 200
+  tickSpeed: 200,
 };
 
 const counterUI = new Counter(document.body, {
   initialCountDiff: initialCounterState.countDiff,
   initialSetTo: initialCounterState.count + 10,
-  initialTickSpeed: initialCounterState.tickSpeed
+  initialTickSpeed: initialCounterState.tickSpeed,
 });
 
 let currentCount = initialCounterState.count;
@@ -54,19 +54,19 @@ let currentCount = initialCounterState.count;
 const counterCommands$ = merge<PartialCountDownState>(
   counterUI.btnStart$.pipe(mapTo({ isTicking: true })),
   counterUI.btnPause$.pipe(mapTo({ isTicking: false })),
-  counterUI.btnSetTo$.pipe(map(n => ({ count: n }))),
+  counterUI.btnSetTo$.pipe(map((n) => ({ count: n }))),
   counterUI.btnUp$.pipe(mapTo({ countUp: true })),
   counterUI.btnDown$.pipe(mapTo({ countUp: false })),
   counterUI.btnReset$.pipe(mapTo({ ...initialCounterState })),
-  counterUI.inputTickSpeed$.pipe(map(n => ({ tickSpeed: n }))),
-  counterUI.inputCountDiff$.pipe(map(n => ({ countDiff: n })))
+  counterUI.inputTickSpeed$.pipe(map((n) => ({ tickSpeed: n }))),
+  counterUI.inputCountDiff$.pipe(map((n) => ({ countDiff: n })))
 );
 
 const counterState$ = counterCommands$.pipe(
   startWith(initialCounterState),
   scan<PartialCountDownState, ICountDownState>((counterState, command) => ({
     ...counterState,
-    ...command
+    ...command,
   })),
   shareReplay(1)
 );
@@ -90,14 +90,14 @@ const renderCountChangeFromTick$ = merge(
   counterUI.btnStart$.pipe(mapTo(1)),
   counterUI.btnPause$.pipe(mapTo(0))
 ).pipe(
-  switchMap(n => (n === 1 ? timer(0, initialCounterState.tickSpeed) : NEVER)),
-  tap(_ => (currentCount += 1)),
-  tap(_ => counterUI.renderCounterValue(currentCount))
+  switchMap((n) => (n === 1 ? timer(0, initialCounterState.tickSpeed) : NEVER)),
+  tap((_) => (currentCount += 1)),
+  tap((_) => counterUI.renderCounterValue(currentCount))
 );
 
 const renderCountChangeFromSetTo$ = counterUI.btnSetTo$.pipe(
-  tap(n => (currentCount = n)),
-  tap(n => counterUI.renderSetToInputValue(n.toString()))
+  tap((n) => (currentCount = n)),
+  tap((n) => counterUI.renderSetToInputValue(n.toString()))
 );
 
 merge(renderCountChangeFromTick$, renderCountChangeFromSetTo$).subscribe();
