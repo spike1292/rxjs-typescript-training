@@ -5,6 +5,7 @@ import {
   shareReplay,
   startWith,
   withLatestFrom,
+  filter,
 } from 'rxjs/operators';
 
 /**
@@ -104,11 +105,11 @@ export class Counter {
     <!-- I'm sorry for this, but I was lazy.. :) -->
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-   <button type="button" id="${ElementIds.BtnReset}">
+    <button type="button" id="${ElementIds.BtnReset}">
       Reset
     </button>
 
-  <br/>
+    <br/>
 
     <button type="button" id="${ElementIds.BtnUp}">
       Count Up
@@ -118,13 +119,13 @@ export class Counter {
       Count Down
     </button>
 
-  <br/>
+    <br/>
 
     <label>
       Tick Speed
     </label>
     <input id="${ElementIds.InputTickSpeed}" style="width:60px" type="number" min=0 value="${this.initialTickSpeed}"/>
-<!-- I'm sorry for this, but I was lazy.. :) -->
+    <!-- I'm sorry for this, but I was lazy.. :) -->
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
     <label>
@@ -251,10 +252,6 @@ export class Counter {
             </span>
           </span>`;
   }
-
-  private getDigitDivider(): string {
-    return '<span class="countDiv"></span>';
-  }
 }
 
 function getCommandObservableByElem(
@@ -278,8 +275,12 @@ function getValueObservable(
     throw new Error(`${elemId} not found`);
   }
   return fromEvent(elem, eventName).pipe(
-    map((v) => (v.target as HTMLInputElement).value),
-    map((v) => parseInt(v, 10)),
+    map((event) => event.target),
+    filter(
+      (target): target is HTMLInputElement => target instanceof HTMLInputElement
+    ),
+    map((element) => element.value),
+    map((value) => parseInt(value, 10)),
     shareReplay(1)
   );
 }
