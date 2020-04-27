@@ -43,8 +43,8 @@ Reactive programming, Event Sourcing & CQRS in the frontend
 
 ## Setup
 
-1. `git clone quintorgit@git.quintor.nl:SG-QuintorAcademy/rxjs.git`
-1. `cd rxjs`
+1. `git clone git@github.com:spike1292/rxjs-typescript-training.git`
+1. `cd rxjs-typescript-training`
 1. `npm install`
 1. `npm start`
 
