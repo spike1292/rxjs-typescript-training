@@ -1,11 +1,11 @@
 import { fromEvent, Observable } from 'rxjs';
 import {
+  filter,
   map,
   mapTo,
   shareReplay,
   startWith,
   withLatestFrom,
-  filter,
 } from 'rxjs/operators';
 
 /**
