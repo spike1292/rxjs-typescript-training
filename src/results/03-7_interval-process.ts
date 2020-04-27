@@ -107,10 +107,6 @@ const renderCountChange$ = count$.pipe(
 );
 
 // == UI OUTPUTS ==========================================================
-const commandFromTick$ = intervalTick$.pipe(
-  withLatestFrom(count$, (_, count) => count),
-  tap((count) => programmaticCommandSubject.next({ count: ++count }))
-);
 
 // == SUBSCRIPTION ========================================================
 

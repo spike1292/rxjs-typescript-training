@@ -25,7 +25,7 @@ Reactive programming, Event Sourcing & CQRS in the frontend
     - [03-7 - Interval process - Command Subject](#03-7---interval-process---command-subject)
     - [03-8 - Interval process - Command stream](#03-8---interval-process---command-stream)
     - [Interlude - Start & Stop](#interlude---start--stop)
-  - [04 - Reset](#04---reset)
+  - [04 - Input & Reset](#04---input--reset)
   - [05 - Count up](#05---count-up)
   - [06 - Dynamic tick speed](#06---dynamic-tick-speed)
   - [07 - Dynamic countDiff](#07---dynamic-countdiff)
@@ -229,15 +229,22 @@ Add the `commandFromTick$` Observable to the Observable you have subscribed to u
 
 Time to catch up and explain current situation
 
-## 04 - Reset
+## 04 - Input & Reset
+
+> If you did not create intermediate observables for all the `CounterStateKeys` you should do it now, because you will be needing them
 
 The reset button currently resets the state due to the command it emits to the `counterCommands$` stream, but the input values are not currently updated. Under the `SIDE EFFECTS - UI INPUTS` section implement Observables that set the input values whenever the state values change using the `counterUI.render...InputValue` methods and `tap`. The intermediate observables should help with this.
 
 The setTo input value is not based on the application state, think of a way to make the reset button reset this value as well.
 
+> Hints: search for the following methods/properties: `renderTickSpeedInputValue`, `renderCountDiffInputValue`, `btnReset$`, `renderSetToInputValue`.
+> You may reset the value to `10`
+
 ## 05 - Count up
 
 Currently the counter can only count up, the buttons count up and count down already update the state. Use that state information to change the `commandFromTick$` Observable to support counting down, and back up again when those buttons are clicked. You can use the `withLatestFrom` [(docs)](https://rxjs.dev/api/operators/withLatestFrom) [(marbles)](https://rxmarbles.com/#withLatestFrom) operator to get the latest value from another observable in a pipe.
+
+> Hints: create `countUp` intermediate observable, use `combineLatest` to combine `count` and `countUp`, use combined observable in `commandFromTick$` in `withLatestFrom`
 
 ## 06 - Dynamic tick speed
 
@@ -246,6 +253,8 @@ Currently the tick speed isn't actually updated when the input is changed. Updat
 ## 07 - Dynamic countDiff
 
 Currently the amount the count is incremented and decremented is doesn't change when the countDiff input is changed. Alter the `commandFromTick$` Observable to use the state value to determine this. Hint: create a new intermediate observable that contains all count data you need in `commandFromTick$`.
+
+> Hints: add `countDiff` to `countInfo`
 
 ### Interlude - counter.ts
 
@@ -283,7 +292,7 @@ const greaterThan = (n: number) => (source: Observable<number>) =>
 from([1, 2, 3, 6]).pipe(greaterThan(5)).subscribe(console.log); // logs 6
 ```
 
-Move the duplicated code into a custom operator, which takes the state key name as property so it can be used with any state key.
+Move the duplicated code into a custom operator, which takes the state key name as property so it can be used with any state key. Place this operator in `OPERATORS`
 
 ## 09 - Unit tests
 

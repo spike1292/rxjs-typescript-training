@@ -85,9 +85,7 @@ const counterState$ = counterCommands$.pipe(
 // === INTERACTION OBSERVABLES ============================================
 
 // == INTERMEDIATE OBSERVABLES ============================================
-const count$ = counterState$.pipe(
-  pluck<ICountDownState, number>(CounterStateKeys.count)
-);
+const count$ = counterState$.pipe(pluck(CounterStateKeys.count));
 const isTicking$ = counterState$.pipe(
   pluck(CounterStateKeys.isTicking),
   distinctUntilChanged()
