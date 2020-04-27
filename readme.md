@@ -86,11 +86,15 @@ At the moment it only switches the count between `0` and `1`, use the `switchMap
 
 When implemented correctly when the start button is clicked the counter should start counting up from `0`, _pause_ will pause the timer at its current value, and _start_ will restart it from `0`.
 
+> Result: `git checkout 01_implement-interval`
+
 ## 02 - Maintain Interval State
 
 Currently the timer resets when it's restarted after a pause, this is of course not the desired functionality. After `switchMap`, use the `tap` [(docs)](https://rxjs.dev/api/operators/tap) operator to update a local variable which keeps track of the count state. Keep in mind we are not interested in the values that are emitted by the `timer` observable, but only use it to register ticks so we can update our state.
 
 After this step the counter should start counting up when you press `start`, pause on the current value when your click `pause`, and continue counting up after clicking `start` again.
+
+> Result: `git checkout 02_maintain-interval-state`
 
 ### 02-1 Interlude
 
@@ -134,6 +138,8 @@ We will start the restructuring according to the following steps:
 
 The counter should still be working as before and the `Set To` button should update the count to the value in the input field next to it.
 
+> Result: `git checkout 03-1_micro-architecture`
+
 ### 03-2 - Event Sourcing
 
 In this step we will create an observable which combines all the events in the application and maps them to state update commands. Use the `merge` operator to create an Observable `counterCommands$`. Add `counterCommands$` to the `STATE OBSERVABLES` section. The `counterCommands$` should combine all the click and change observables from `counterUI` (_btnStart$, btnPause$_ etc.) and maps the counterUI observables to state update commands. You can use the `map` [(docs)](https://rxjs.dev/api/operators/map) [(marbles)](https://rxmarbles.com/#map) and `mapTo` [(docs)](https://rxjs.dev/api/operators/mapTo) [(marbles)](https://rxmarbles.com/#mapTo) operators to do this.
@@ -141,6 +147,8 @@ In this step we will create an observable which combines all the events in the a
 > The valid update commands are defined in the `PartialCounterState` type exported by `counter.ts`.
 
 For now subscribe to this observable and log it to the console.
+
+> Result: `git checkout 03-2_event-sourcing`
 
 ### 03-3 - CQRS
 
@@ -173,6 +181,8 @@ By default most Observables are _cold_ ❄️, we only want to have one instance
 
 Subscribe to this Observable and log the result to the console, all the buttons and inputs should cause an updated state to be logged to the console.
 
+> Result: `git checkout 03-3_cqrs`
+
 ### 03-4 - Intermediate observables
 
 We now have a `counterState$` Observable, which always gives us the entire state. We want to be able to act on partial state value changes. We can create intermediate Observables from the `counterState$` Observable, do this for each of the properties eg. `isTicking`, `count`, on the state. Use the `pluck` [(docs)](https://rxjs.dev/api/operators/pluck) [(marbles)](https://rxmarbles.com/#pluck) operator and the `distinctUntilChanged` [(docs)](https://rxjs.dev/api/operators/distinctUntilChanged) [(marbles)](https://rxmarbles.com/#distinctUntilChanged) operator to do this.
@@ -187,6 +197,8 @@ const count$ = counterState$.pipe(
 ```
 
 Put these new Observables under the `INTERMEDIATE OBSERVABLES` section.
+
+> Result: `git checkout 03-4_intermediate-observables`
 
 ### 03-5 Remove wrong state implementation
 
@@ -205,9 +217,13 @@ cleanup the **wrong** state implementation:
   ```
   - don't forget to update `SUBSCRIPTION` 😉
 
+> Result: `git checkout 03-5_cleanup`
+
 ### 03-6 - Interval process - Move timer
 
 Up until now we have based the interval tick on the start and pause commands. In the previous step we created observables on the individual state properties, and the tick itself can be based on the `isTicking$` intermediate observable. Use the `switchMap` function, from [01 - Implement Interval](#01---implement-interval), to start and stop the timer when this property changes. Create an Observable called `intervalTick$` and place it in `INTERMEDIATE OBSERVABLES`.
+
+> Result: `git checkout 03-6_interval-process`
 
 ### 03-7 - Interval process - Command Subject
 
@@ -219,11 +235,15 @@ Create a Subject `programmaticCommandSubject` and add this to the `counterComman
 const programmaticCommandSubject = new Subject<PartialCountDownState>();
 ```
 
+> Result: `git checkout 03-7_interval-process`
+
 ### 03-8 - Interval process - Command stream
 
 Create an Observable `commandFromTick$` from `intervalTick$` which calls `programmaticCommandSubject.next({ count: newCount })` with the new count value on every tick. You can get the current count state using `withLatestFrom` [(docs)](https://rxjs.dev/api/operators/withLatestFrom) [(marbles)](https://rxmarbles.com/#withLatestFrom). For now increment it by 1 every tick. Place this in `UI OUTPUTS`
 
 Add the `commandFromTick$` Observable to the Observable you have subscribed to under the `SUBSCRIPTION` section. The counter should work again now.
+
+> Result: `git checkout 03-8_interval-process`
 
 ### Interlude - Start & Stop
 
@@ -240,21 +260,29 @@ The setTo input value is not based on the application state, think of a way to m
 > Hints: search for the following methods/properties: `renderTickSpeedInputValue`, `renderCountDiffInputValue`, `btnReset$`, `renderSetToInputValue`.
 > You may reset the value to `10`
 
+> Result: `git checkout 04_reset`
+
 ## 05 - Count up
 
 Currently the counter can only count up, the buttons count up and count down already update the state. Use that state information to change the `commandFromTick$` Observable to support counting down, and back up again when those buttons are clicked. You can use the `withLatestFrom` [(docs)](https://rxjs.dev/api/operators/withLatestFrom) [(marbles)](https://rxmarbles.com/#withLatestFrom) operator to get the latest value from another observable in a pipe.
 
 > Hints: create `countUp` intermediate observable, use `combineLatest` to combine `count` and `countUp`, use combined observable in `commandFromTick$` in `withLatestFrom`
 
+> Result: `git checkout 05_count-up`
+
 ## 06 - Dynamic tick speed
 
 Currently the tick speed isn't actually updated when the input is changed. Update the `intervalTick$` Observable to use the (intermediate) state to determine to interval speed. You can use the `combineLatest` [(docs)](https://rxjs.dev/api/index/function/combineLatest) [(marbles)](https://rxmarbles.com/#combineLatest) observable creation method to get the most recent value of those observables when either one emits a value.
+
+> Result: `git checkout 06_dynamic-tick-speed`
 
 ## 07 - Dynamic countDiff
 
 Currently the amount the count is incremented and decremented is doesn't change when the countDiff input is changed. Alter the `commandFromTick$` Observable to use the state value to determine this. Hint: create a new intermediate observable that contains all count data you need in `commandFromTick$`.
 
 > Hints: add `countDiff` to `countInfo`
+
+> Result: `git checkout 07_dynamic-count-diff`
 
 ### Interlude - counter.ts
 
@@ -294,8 +322,12 @@ from([1, 2, 3, 6]).pipe(greaterThan(5)).subscribe(console.log); // logs 6
 
 Move the duplicated code into a custom operator, which takes the state key name as property so it can be used with any state key. Place this operator in `OPERATORS`
 
+> Result: `git checkout 08_refactoring`
+
 ## 09 - Unit tests
 
 The last step will be to write a number of unit tests for the code you have written. A common way to test RxJS observables is a via the `rxjs-marbles` library. This lets you easily re-create complex observable streams in tests while allowing you to control the timing. You can read about how to use [rxjs-marbles](https://github.com/cartant/rxjs-marbles)
 
 Create an `index.spec.ts` file, and write a test that verifies that the `counterState$` observable emits a value when `next` is called on `programmaticCommandSubject`. You can run the test suite by running `npm test`.
+
+> Result: `git checkout 09_unit-tests`
