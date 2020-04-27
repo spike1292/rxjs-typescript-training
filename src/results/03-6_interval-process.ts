@@ -1,4 +1,4 @@
-import { merge } from 'rxjs';
+import { merge, NEVER, timer } from 'rxjs';
 import {
   distinctUntilChanged,
   map,
@@ -7,6 +7,7 @@ import {
   scan,
   shareReplay,
   startWith,
+  switchMap,
   tap,
 } from 'rxjs/operators';
 import {
@@ -88,13 +89,17 @@ const isTicking$ = counterState$.pipe(
   distinctUntilChanged()
 );
 
+const intervalTick$ = isTicking$.pipe(
+  switchMap((isTicking) =>
+    isTicking ? timer(0, initialCounterState.tickSpeed) : NEVER
+  )
+);
+
 // = SIDE EFFECTS =========================================================
 // == UI INPUTS ===========================================================
 const renderCountChange$ = count$.pipe(
   tap((n) => counterUI.renderCounterValue(n))
 );
-
-// WRONG SOLUTION REMOVED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 // == UI OUTPUTS ==========================================================
 
