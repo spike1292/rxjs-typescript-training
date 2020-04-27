@@ -73,7 +73,7 @@ In the `./src` directory there is an `index.ts` and an `index.html` file. The `i
 
 The `./src/lib` directory contains a file `counter.ts` with a class you will use to implement the counter view. **You don't have to adjust this file**.
 
-> In [07-1 - Interlude](#07-1---interlude) the content of of `counter.ts` will be explained
+> In [Interlude - counter.ts](#interlude---counterts) the content of of `counter.ts` will be explained
 
 In the `./src/results` directory there are files for every step. In those files there is a possible result of that step. If you get stuck or need idea's you can always take a look at those files.
 
