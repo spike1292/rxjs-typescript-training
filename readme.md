@@ -86,6 +86,8 @@ At the moment it only switches the count between `0` and `1`, use the `switchMap
 
 When implemented correctly when the start button is clicked the counter should start counting up from `0`, _pause_ will pause the timer at its current value, and _start_ will restart it from `0`.
 
+> Hints: after `merge(...)` add a `.pipe(` and use the `switchMap` operator. In the `switchMap` use `timer` on start en `NEVER` on pause.
+
 > Result: `git checkout 01_implement-interval`
 
 ## 02 - Maintain Interval State
